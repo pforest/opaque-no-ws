@@ -83,7 +83,7 @@ const Nav = ({ activeRoute, onNavigate }) => {
 
   // Flat, single-group nav. Admin/Owner sees all; Member sees Workflows + Trust.
   const allItems = [
-    { key: "workflows", icon: "graph_3",       label: "Workflows",    route: "workflows",    href: "Workflows.html",  roles: ["admin", "member"] },
+    { key: "workflows", icon: "graph_3",       label: "Workflows",    route: "workflows",    href: "index.html",  roles: ["admin", "member"] },
     { key: "registry",  icon: "storage",       label: "Registry",     route: "registry",     href: "Registry.html",   roles: ["admin"] },
     { key: "trust",     icon: "verified_user", label: "Trust Center", route: "trust",        href: "TrustCenter.html",roles: ["admin", "member"] },
     { key: "org",       icon: "settings",      label: "Org Settings", route: "org-settings", href: "OrgSettings.html",roles: ["admin"] },
