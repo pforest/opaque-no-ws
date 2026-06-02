@@ -138,7 +138,7 @@ const WorkflowsList = () => {
     return (
       <>
         <div className="page-header">
-          <div className="title-row"><h1>Workflows</h1></div>
+          <div className="title-row"><h1>Agent Studio</h1></div>
         </div>
         <div className="scroll">
           <div className="page-body">
@@ -152,7 +152,7 @@ const WorkflowsList = () => {
                   ? "Ask an Owner or Admin to grant you access, or create your first workflow once resources are registered."
                   : "Create your first workflow, or ask a Builder to get started. Register resources in Registry so Builders have nodes to work with."}
               </div>
-              <Button variant="primary" size="sm">New workflow</Button>
+              <Button variant="primary" size="sm">New agent</Button>
             </div>
           </div>
         </div>
@@ -164,7 +164,7 @@ const WorkflowsList = () => {
     <>
       <div className="page-header">
         <div className="title-row">
-          <h1>Workflows</h1>
+          <h1>Agent Studio</h1>
         </div>
       </div>
       <div className="scroll">
@@ -196,7 +196,7 @@ const WorkflowsList = () => {
               <Icon name="search" size={18} />
             </label>
             <div className="spacer" />
-            <Button variant="primary" icon={null} size="sm">New workflow</Button>
+            <Button variant="primary" icon={null} size="sm">New agent</Button>
           </div>
 
           <div className="table-wrap">
