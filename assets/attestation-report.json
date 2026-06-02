@@ -1,0 +1,168 @@
+{
+  "uuid": "54f9fd5a-8a44-419b-a8f0-26ad05f4ebc6",
+  "workflowUUID": "89812c53-179d-4ae2-aca9-d2b768ae37f5",
+  "workflowName": "qa-guardrailsTest-workflow-gpt-4",
+  "nodeName": "aks-main-27229106-vmss0000ir",
+  "attestedAt": "2026-03-22T21:01:14+00:00",
+  "attestationStatus": "verified",
+  "errorMessage": "",
+  "tokenJSON": {
+    "aud": [
+      "compute.opaque.co"
+    ],
+    "cnf": {
+      "jwk": {
+        "alg": "ES256",
+        "crv": "P-256",
+        "kty": "EC",
+        "x": "w_kTccRhGAjel74tAeLtfj4qaAVoAFLMjDcTCq4eqPI",
+        "y": "a11pUOFmyLuJFCulYIb-ccMZ6KO9qWoEkIXSEnzUgug"
+      }
+    },
+    "exp": 1774213874,
+    "iat": 1774213274,
+    "iss": "authority.opaque.co",
+    "x-opaque-authority": {
+      "version": "1.0",
+      "runtime": "azure/aas/cvm",
+      "document": {
+        "exp": 1774242070,
+        "iat": 1774213270,
+        "iss": "https://sharedeus2.eus2.attest.azure.net",
+        "jti": "9311151e037c4924d557ba531c3dcf7904c0e64a54b3dd025459e20f627d4803",
+        "nbf": 1774213270,
+        "secureboot": true,
+        "x-ms-attestation-type": "azurevm",
+        "x-ms-azurevm-attestation-protocol-ver": "2.0",
+        "x-ms-azurevm-attested-pcr-values": {
+          "pcr0": "4VxEeWvqv0arzsfFflkJQgQeR0l+TsJ1cci3Zk9I3O0=",
+          "pcr1": "1B1X09TKljykANRqV0TMp/wgcB4J2DFwPERZjwdWt8E=",
+          "pcr2": "PUWM/lXMA+ofRD8VYr7sjfUcdeFKn8+acjShPxmOeWk=",
+          "pcr3": "PUWM/lXMA+ofRD8VYr7sjfUcdeFKn8+acjShPxmOeWk=",
+          "pcr4": "JlQFQoSz1x/KoVfkgRDmqz4txclE8smD40tUkRPivLo=",
+          "pcr5": "MZWAn3BSxjlWbmztb3aX1b81ihrK4uiguW48w4j3Uis=",
+          "pcr6": "HtwgGepKAY9/ythG9Al6sy351e5MyeIPQpcWzr2JXEs=",
+          "pcr7": "hrqMarPXJ7H7qxjj8Si/WNbjk19uipKKNkyxRTghGcM="
+        },
+        "x-ms-azurevm-attested-pcrs": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "x-ms-azurevm-bootdebug-enabled": false,
+        "x-ms-azurevm-dbvalidated": true,
+        "x-ms-azurevm-dbxvalidated": true,
+        "x-ms-azurevm-debuggersdisabled": true,
+        "x-ms-azurevm-default-securebootkeysvalidated": true,
+        "x-ms-azurevm-elam-enabled": false,
+        "x-ms-azurevm-flightsigning-enabled": false,
+        "x-ms-azurevm-hvci-policy": 0,
+        "x-ms-azurevm-hypervisordebug-enabled": false,
+        "x-ms-azurevm-is-windows": false,
+        "x-ms-azurevm-kerneldebug-enabled": false,
+        "x-ms-azurevm-osbuild": "N/A",
+        "x-ms-azurevm-osdistro": "Ubuntu",
+        "x-ms-azurevm-ostype": "Linux",
+        "x-ms-azurevm-osversion-major": 22,
+        "x-ms-azurevm-osversion-minor": 4,
+        "x-ms-azurevm-signingdisabled": true,
+        "x-ms-azurevm-testsigning-enabled": false,
+        "x-ms-azurevm-vmid": "5D7730BE-14DE-4C32-AEDE-8E666B10B986",
+        "x-ms-isolation-tee": {
+          "x-ms-attestation-type": "sevsnpvm",
+          "x-ms-compliance-status": "azure-compliant-cvm",
+          "x-ms-runtime": {
+            "keys": [
+              {
+                "e": "AQAB",
+                "key_ops": [
+                  "sign"
+                ],
+                "kid": "HCLAkPub",
+                "kty": "RSA",
+                "n": "s58-IAAA2CQw_L9K2KbYfalR2fXtlVDnfjyXSLJXlrIi6_Z6pZCSI8DCqTe9ew2lQmNXo_pogxRTtiQ-k7ZfSzt72vF0ARkQDxJrmEtvLaFIeoJec2BJ4myuYKhQMAgxE7bJku0qdsRGdObRhaJYtUk019wMZoLK8lOxiBfv2svWDTDD_PRFdhfncWX-W311E_v1upiOcgU67q58AU4vDYm-2gIqZtLKG-6H8MU2oGf7fm9861QhK8dqH2uSP0gaKS3N-tD6ZkW4lC0HJ4XAtwNacUsDqwWxEcKbIc8FqSN0Vst3y_DpYRSa4Zp6VcetePXZ6TohP13NUwI19jePuQ"
+              },
+              {
+                "e": "AQAB",
+                "key_ops": [
+                  "encrypt"
+                ],
+                "kid": "HCLEkPub",
+                "kty": "RSA",
+                "n": "n95HRgAAptduIJ3UknWOufj4Bpcd1ILr4Q8PBIJ_qgUwchSfC42gUtfwkMHpjGRE-RS1XlhSYLqGPr1ia99qKafaDm67ivyJVY3MQdTLzurFeKzDJyp8N2TzN0DCIPn0BMmX-J3s-qM_AFtjM39VujwT5To1pJHQ7fjmcCQxaWuoir_O5CCK1HBoc2vxrGfIdBIVUfC91BbPIpW3epkgoHPcH9KKhGYRYkasvWu9GFpAT6soQGe_ApKoqOz7qo9XWfgQXbXsVhrxa8fIFskckYneKQiodnUKcFtntxFZu-y067NbaYzEjwIHkRqe_OHGA624P6BR_qBM1cEhRRC8Bw"
+              }
+            ],
+            "user-data": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "vm-configuration": {
+              "console-enabled": true,
+              "secure-boot": true,
+              "tpm-enabled": true,
+              "vmUniqueId": "5D7730BE-14DE-4C32-AEDE-8E666B10B986"
+            }
+          },
+          "x-ms-sevsnpvm-authorkeydigest": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "x-ms-sevsnpvm-bootloader-svn": 4,
+          "x-ms-sevsnpvm-chip-family": "Milan",
+          "x-ms-sevsnpvm-chipid": "9c4886d477681b0a1c8879c1c1f468f135b77895b75aa25f478d4de1a7d36079ce1a6acae212895d1a5ebf7d2c7554930e9be02bcb49b743f93153f9ec39722d",
+          "x-ms-sevsnpvm-ciphertext-hiding-dram-enabled": false,
+          "x-ms-sevsnpvm-cxl-allowed": false,
+          "x-ms-sevsnpvm-familyId": "02212000000000000000000000000000",
+          "x-ms-sevsnpvm-guestsvn": 10,
+          "x-ms-sevsnpvm-hostdata": "0000000000000000000000000000000000000000000000000000000000000000",
+          "x-ms-sevsnpvm-idkeydigest": "942fd93ebde6ea7a96efadeafc60f1c6b3d10e703b1dafd7555b92f7f3d32d0e006767648cba5b102af3d65756af4177",
+          "x-ms-sevsnpvm-imageId": "02000000000000000000000000000000",
+          "x-ms-sevsnpvm-is-debuggable": false,
+          "x-ms-sevsnpvm-launchmeasurement": "6a063be9dd79f6371c842e480f8dc3b5c725961344e57130e88c5adf49e8f7f6c79b75a5eb77fc769959f4aeb2f9401e",
+          "x-ms-sevsnpvm-mem-aes256-xts-required": false,
+          "x-ms-sevsnpvm-microcode-svn": 219,
+          "x-ms-sevsnpvm-migration-allowed": false,
+          "x-ms-sevsnpvm-page-swap-disabled": false,
+          "x-ms-sevsnpvm-rapl-disabled": false,
+          "x-ms-sevsnpvm-reportdata": "14d48a2ac68ef04c772c1656ee773865e1f8274927017c7c6ac6f2c725ea69830000000000000000000000000000000000000000000000000000000000000000",
+          "x-ms-sevsnpvm-reportid": "0f1c9ad33b24306912cd883ee8e189549a81899de0bba3867778f39ed451b5b5",
+          "x-ms-sevsnpvm-singlesocket": false,
+          "x-ms-sevsnpvm-smt-allowed": true,
+          "x-ms-sevsnpvm-snpfw-svn": 24,
+          "x-ms-sevsnpvm-tee-svn": 0,
+          "x-ms-sevsnpvm-vmpl": 0
+        },
+        "x-ms-policy-hash": "QsNi9UE365SgcskuV_a4p-uFQyGlNcIlQkrsi0UIy7o",
+        "x-ms-runtime": {
+          "client-payload": {
+            "Nonce": "ZVJwRnpLbnVzLTBES2Z2MjRTc1l3Tjk2aFJDa1Vram1aakpHZUt3NjRTYz0=",
+            "PublicKey": "TUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFd19rVGNjUmhHQWplbDc0dEFlTHRmajRxYUFWb0FGTE1qRGNUQ3E0ZXFQSnJYV2xRNFdiSXU0a1VLNlZnaHY1eHd4bm9vNzJwYWdTUWhkSVNmTlNDNkE9PQ=="
+          },
+          "keys": [
+            {
+              "e": "AQAB",
+              "key_ops": [
+                "encrypt"
+              ],
+              "kid": "TpmEphemeralEncryptionKey",
+              "kty": "RSA",
+              "n": "sz7aAAAAtil3qLwRYnhCFMspo3YknQNVv7oU41-OLFP_AszIyHPHDBvujP-DpwSTQX6ua36nH1hOlpYwqpV4CfYv8kHzqa-9tyOvI99yJSbCPvZW28HiWt9Bm48z5RDsWESMCzsaCKj_B92jbU9VQLxYsvmnfvzMfMh5uuegYTouwCFo4qUUO4NiUuOzuxCY7s-yz4yrR1590h7LRDYXTgPUOIFd1Hi2aYVVdVgLD7TBySZQqyv3_961xziVaVBWX_PU3dXTV21W9R_q5hT671uc5HxX1VjMj7ljibUrEMsdP044K5IdOtzQb4tu4z_feFoyS4AFum9qkjp8Q8DqNQ"
+            }
+          ]
+        },
+        "x-ms-ver": "1.0"
+      },
+      "nonce": "eRpFzKnus+0DKfv24SsYwN96hRCkUkjmZjJGeKw64Sc=",
+      "claims": {
+        "k8s-node-name": "aks-main-27229106-vmss0000ir",
+        "nonce": "oXYxrFUgrIxj69y72l+Z4PVyQgmY9nFvrYsfaCtawhg=",
+        "request": "P3HnD766kiVBTxfSg/ghloYAJJF5pSL/FW4t33YO2bI=",
+        "response": "hAUZ6gg9P2HePsKD8pDI+a6bPFh/qewynH1oMWThOY0=",
+        "workflow-external-endpoints": [
+          "https://api.openai.com/v1"
+        ],
+        "workflow-guardrail-count": 1,
+        "workflow-id": "89812c53-179d-4ae2-aca9-d2b768ae37f5"
+      }
+    }
+  }
+}

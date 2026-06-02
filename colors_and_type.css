@@ -1,0 +1,381 @@
+/* ============================================================
+   Opaque Design System — Colors & Type (v2)
+   Source of truth: Figma tokens export (OPAQUE 3.0 Light / Dark + OPAQUE 2.0).
+   Surfaces are graphite, brand signal is emerald, DM Sans throughout.
+   ============================================================ */
+
+/* ---------- Local brand fonts ----------
+   DM Sans is the Opaque brand font. Inter / Montserrat / Roboto are
+   uploaded alternates available for marketing/deck contexts. Mono kept
+   as DM Mono via Google Fonts (no mono variant was uploaded).
+--------------------------------------- */
+@font-face {
+  font-family: "DM Sans";
+  src: url("fonts/DMSans-VariableFont_opsz_wght.ttf") format("truetype-variations");
+  font-weight: 100 1000; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("fonts/DMSans-Italic-VariableFont_opsz_wght.ttf") format("truetype-variations");
+  font-weight: 100 1000; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/Inter-VariableFont_opsz_wght.ttf") format("truetype-variations");
+  font-weight: 100 1000; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/Inter-Italic-VariableFont_opsz_wght.ttf") format("truetype-variations");
+  font-weight: 100 1000; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("fonts/Montserrat-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 100 1000; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("fonts/Montserrat-Italic-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 100 1000; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Roboto";
+  src: url("fonts/Roboto-VariableFont_wdth_wght.ttf") format("truetype-variations");
+  font-weight: 100 1000; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Roboto";
+  src: url("fonts/Roboto-Italic-VariableFont_wdth_wght.ttf") format("truetype-variations");
+  font-weight: 100 1000; font-style: italic; font-display: swap;
+}
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap");
+
+/* ============================================================
+   1. Primitive palette — raw hex values used by tokens below
+   ============================================================ */
+:root {
+  /* ink / graphite */
+  --opq-ink-900:    #1f2125;
+  --opq-ink-850:    #24272b;
+  --opq-ink-800:    #343a3e;
+  --opq-ink-700:    #495357;
+  --opq-ink-600:    #5e6b70;
+  --opq-ink-500:    #738489;
+  --opq-ink-400:    #909ea2;
+  --opq-ink-300:    #acb6b9;
+  --opq-ink-200:    #c8ced0;
+  --opq-ink-100:    #e3e7e8;
+  --opq-ink-50:     #f1f3f3;
+  --opq-white:      #ffffff;
+  --opq-black:      #000000;
+
+  /* brand emerald */
+  --opq-emerald-800: #03251b;
+  --opq-emerald-700: #064a36;
+  --opq-emerald-600: #0a7051;
+  --opq-emerald-550: #0d956c;
+  --opq-emerald-500: #10ba87;  /* PRIMARY BRAND */
+  --opq-emerald-400: #40c89f;
+  --opq-emerald-300: #70d6b7;
+  --opq-emerald-200: #9fe3cf;
+  --opq-emerald-100: #d3f1e5;
+
+  /* semantic — info (also OPAQUE 2.0 accent) */
+  --opq-info-900:   #00182e;
+  --opq-info-700:   #003768;
+  --opq-info-600:   #0056a1;
+  --opq-info-500:   #0075db;
+  --opq-info-400:   #00b0ff;
+  --opq-info-300:   #3ac2ff;
+  --opq-info-200:   #73d4ff;
+  --opq-info-100:   #b3e7ff;
+
+  /* semantic — warning */
+  --opq-warn-800:   #925402;
+  --opq-warn-600:   #c0812e;
+  --opq-warn-500:   #f6c65a;
+  --opq-warn-400:   #f2ba5a;
+  --opq-warn-300:   #ffde5a;
+  --opq-warn-200:   #ffe788;
+  --opq-warn-100:   #fff1b7;
+  --opq-warn-text:  #925402;
+
+  /* semantic — error */
+  --opq-error-800:  #aa0000;
+  --opq-error-700:  #c9110c;
+  --opq-error-600:  #e82217;
+  --opq-error-500:  #e54c39;
+  --opq-error-300:  #e1765a;
+  --opq-error-100:  #fadbd3;
+
+  /* signal — high-contrast alert color used for "needs attention" /
+     trust-center "failed" states. Distinct from the error ramp so
+     critical product signals read louder than destructive actions. */
+  --opq-signal-red: #f0493c;
+
+  /* ============================================================
+     2. Type + spacing + radii (theme-agnostic)
+     ============================================================ */
+  --font-sans: "DM Sans", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --text-caption-size:  12px; --text-caption-lh: 16px;
+  --text-body2-size:    13px; --text-body2-lh:   18px;
+  --text-body1-size:    14px; --text-body1-lh:   20px;
+  --text-body-lg-size:  15px; --text-body-lg-lh: 20px;
+  --text-h6-size: 14px; --text-h6-lh: 20px;
+  --text-h5-size: 15px; --text-h5-lh: 20px;
+  --text-h4-size: 16px; --text-h4-lh: 22px;
+  --text-h3-size: 18px; --text-h3-lh: 24px;
+  --text-h2-size: 20px; --text-h2-lh: 24px;
+  --text-h1-size: 22px; --text-h1-lh: 28px;
+  --text-display-size: 32px; --text-display-lh: 36px;
+  --weight-regular: 400; --weight-medium: 500; --weight-bold: 700;
+
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 5px;
+  --radius-pill: 16px; --radius-round: 999px;
+
+  --space-1:4px;  --space-2:8px;   --space-3:12px; --space-4:16px;
+  --space-5:20px; --space-6:24px;  --space-8:32px; --space-10:40px;
+  --space-12:48px; --space-16:64px;
+
+  /* ============================================================
+     3. Semantic tokens — OPAQUE 3.0 Dark (DEFAULT THEME)
+        In-product console theme: graphite surfaces, emerald accent.
+     ============================================================ */
+  --text-primary:      #ffffff;
+  --text-secondary:    #acb6b9;
+  --text-tertiary:     #909ea2;
+  --text-disabled:     #738489;
+  --text-link:         #40c89f;
+  --text-inverse:      #1f2125;
+
+  --bg-app:            #1f2125;
+  --bg-page:           #24272b;
+  --bg-canvas:         #343a3e;
+  --bg-canvas-grid:    #909ea2;
+  --bg-surface:        #1f2125;
+  --bg-surface-elevated: #1f2125;
+  --bg-surface-emphasis: #343a3e;
+  --bg-surface-sunken: #5e6b70;
+  --bg-surface-hover:  #343a3e;
+  --bg-surface-focus:  #495357;
+  --bg-surface-inverse:#e3e7e8;
+  --bg-disabled:       #343a3e;
+  --bg-overlay:        rgba(0,0,0,0.30);
+
+  --border-subtle:     #343a3e;
+  --border-default:    #738489;
+  --border-strong:     #c8ced0;
+
+  --accent-primary:    #10ba87;
+  --accent-secondary:  #00b0ff;
+  --accent-hover:      #0d956c;
+  --accent-disabled:   #5e6b70;
+  --accent-text:       #ffffff;
+  --accent-on-accent:  #1f2125; /* per brand: black on green */
+
+  --brand-primary:     #10ba87;
+  --brand-hover:       #70d6b7;
+  --brand-disabled:    #495357;
+  --brand-on-brand:    #1f2125;
+
+  /* Status pairings per Figma kit:
+     - Subtle  = light pastel bg + darkened on-subtle text
+     - Strong  = saturated bg + white-ish on-strong text */
+  --status-success-text:           #40c89f;
+  --status-success-bg-subtle:      #064a36;
+  --status-success-bg-strong:      #10ba87;
+  --status-success-on-strong:      #ffffff;
+  --status-success-on-subtle:      #70d6b7;
+  --status-success-border-subtle:  #0a7051;
+  --status-success-border-strong:  #10ba87;
+
+  --status-warning-text:           #f6c65a;
+  --status-warning-bg-subtle:      #925402;
+  --status-warning-bg-strong:      #f6c65a;
+  --status-warning-on-strong:      #1f2125;
+  --status-warning-on-subtle:      #ffe788;
+  --status-warning-border-subtle:  #c0812e;
+  --status-warning-border-strong:  #f6c65a;
+
+  --status-error-text:             #e54c39;
+  --status-error-bg-subtle:        #aa0000;
+  --status-error-bg-strong:        #e82217;
+  --status-error-on-strong:        #ffffff;
+  --status-error-on-subtle:        #fadbd3;
+  --status-error-border-subtle:    #c9110c;
+  --status-error-border-strong:    #e82217;
+
+  --status-info-text:              #3ac2ff;
+  --status-info-bg-subtle:         #003768;
+  --status-info-bg-strong:         #0075db;
+  --status-info-on-strong:         #ffffff;
+  --status-info-on-subtle:         #73d4ff;
+  --status-info-border-subtle:     #0056a1;
+  --status-info-border-strong:     #0075db;
+
+  --status-default-text:           #c8ced0;
+  --status-default-bg-subtle:      #343a3e;
+  --status-default-bg-strong:      #738489;
+  --status-default-on-strong:      #1f2125;
+  --status-default-on-subtle:      #c8ced0;
+  --status-default-border-subtle:  #495357;
+  --status-default-border-strong:  #738489;
+
+  --shadow-1: 0 2px 6px rgba(0,0,0,0.30);
+  --shadow-3: 0 1px 2px rgba(0,0,0,0.30);
+  --shadow-nav:   4px 1px 12px 2px rgba(0, 0, 0, 0.30);
+  --shadow-modal: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+  /* ---------- Legacy aliases (keep existing previews/kit working) ---------- */
+  --fg-primary:    var(--text-primary);
+  --fg-secondary:  var(--text-secondary);
+  --fg-tertiary:   var(--text-tertiary);
+  --fg-muted:      var(--text-disabled);
+  --fg-brand:      var(--brand-primary);
+  --fg-link:       var(--text-link);
+  --fg-on-brand:   var(--brand-on-brand);
+
+  --surface-app:     var(--bg-app);
+  --surface-raised:  var(--bg-surface-emphasis);
+  --surface-nav:     var(--bg-app);
+  --surface-stage:   var(--bg-canvas);
+  --surface-light:   var(--opq-white);
+  --surface-light-alt: var(--opq-ink-50);
+
+  --stroke-subtle:   var(--border-subtle);
+  --stroke-strong:   var(--border-strong);
+  --stroke-on-dark:  rgba(255, 255, 255, 0.1);
+
+  --shadow-sm: var(--shadow-3);
+  --shadow-md: var(--shadow-1);
+  --shadow-card-light: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* ============================================================
+   4. Theme overrides
+   ============================================================ */
+
+/* OPAQUE 3.0 Light — white surface, emerald accent (governance artifacts, print) */
+[data-theme="opaque30-light"] {
+  --text-primary:      #1f2125;
+  --text-secondary:    #5e6b70;
+  --text-tertiary:     #495357;
+  --text-disabled:     #738489;
+  --text-link:         #0a7051;
+  --text-inverse:      #ffffff;
+
+  --bg-app:            #ffffff;
+  --bg-page:           #ffffff;
+  --bg-canvas:         #e3e7e8;
+  --bg-canvas-grid:    #e3e7e8;
+  --bg-surface:        #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-emphasis: #f1f3f3;
+  --bg-surface-sunken: #c8ced0;
+  --bg-surface-hover:  #f1f3f3;
+  --bg-surface-focus:  #e3e7e8;
+  --bg-surface-inverse:#1f2125;
+  --bg-disabled:       #c8ced0;
+  --bg-overlay:        rgba(0,0,0,0.30);
+
+  --border-subtle:     #e3e7e8;
+  --border-default:    #909ea2;
+  --border-strong:     #343a3e;
+
+  --accent-primary:    #10ba87;
+  --accent-secondary:  #00b0ff;
+  --accent-hover:      #0d956c;
+  --accent-disabled:   #f1f3f3;
+  --accent-text:       #ffffff;
+  --accent-on-accent:  #1f2125;
+  --brand-primary:     #10ba87;
+  --brand-hover:       #0a7051;
+  --brand-disabled:    #f1f3f3;
+  --brand-on-brand:    #1f2125;
+
+  --status-success-text:#10ba87; --status-success-bg-subtle:#9fe3cf; --status-success-bg-strong:#10ba87;
+  --status-success-on-strong:#ffffff; --status-success-on-subtle:#064a36;
+  --status-success-border-subtle:#0d956c; --status-success-border-strong:#10ba87;
+
+  --status-warning-text:#925402; --status-warning-bg-subtle:#fff1b7; --status-warning-bg-strong:#ffe788;
+  --status-warning-on-strong:#925402; --status-warning-on-subtle:#c0812e;
+  --status-warning-border-subtle:#f6c65a; --status-warning-border-strong:#ffde5a;
+
+  --status-error-text:#c9110c; --status-error-bg-subtle:#fadbd3; --status-error-bg-strong:#c9110c;
+  --status-error-on-strong:#ffffff; --status-error-on-subtle:#c9110c;
+  --status-error-border-subtle:#e1765a; --status-error-border-strong:#c9110c;
+
+  --status-info-text:#0056a1; --status-info-bg-subtle:#b3e7ff; --status-info-bg-strong:#00b0ff;
+  --status-info-on-strong:#ffffff; --status-info-on-subtle:#0075db;
+  --status-info-border-subtle:#3ac2ff; --status-info-border-strong:#0075db;
+
+  --status-default-text:#1f2125; --status-default-bg-subtle:#e3e7e8; --status-default-bg-strong:#495357;
+  --status-default-on-strong:#ffffff; --status-default-on-subtle:#1f2125;
+  --status-default-border-subtle:#909ea2; --status-default-border-strong:#343a3e;
+
+  --shadow-1: 0 2px 6px rgba(0,0,0,0.15);
+  --shadow-3: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+/* OPAQUE 2.0 — legacy light theme with blue accent (kept for transition) */
+[data-theme="opaque20"] {
+  --text-primary:      #1f2125;
+  --text-secondary:    #5e6b70;
+  --text-tertiary:     #495357;
+  --text-disabled:     #738489;
+  --text-link:         #003768;
+  --text-inverse:      #ffffff;
+
+  --bg-app:            #ffffff;
+  --bg-page:           #ffffff;
+  --bg-canvas:         #e3e7e8;
+  --bg-surface:        #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-emphasis: #e3e7e8;
+  --bg-surface-sunken: #738489;
+  --bg-surface-hover:  #f1f3f3;
+  --bg-surface-focus:  #e3e7e8;
+
+  --border-subtle:     #c8ced0;
+  --border-default:    #909ea2;
+  --border-strong:     #343a3e;
+
+  --accent-primary:    #0075db;
+  --accent-secondary:  #ffffff;
+  --accent-hover:      #0056a1;
+  --accent-on-accent:  #ffffff;
+
+  --brand-primary:     #10ba87;
+  --brand-hover:       #0a7051;
+  --brand-on-brand:    #ffffff;
+}
+
+/* ============================================================
+   5. Element defaults (opt-in via `.opq` root)
+   ============================================================ */
+.opq, .opq-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  color: var(--text-primary);
+  background: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.opq h1, .opq-h1 { font-size: var(--text-h1-size); line-height: var(--text-h1-lh); font-weight: var(--weight-regular); margin: 0; letter-spacing: -0.01em; }
+.opq h2, .opq-h2 { font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: var(--weight-regular); margin: 0; }
+.opq h3, .opq-h3 { font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: var(--weight-medium); margin: 0; }
+.opq h4, .opq-h4 { font-size: var(--text-h4-size); line-height: var(--text-h4-lh); font-weight: var(--weight-medium); margin: 0; }
+.opq h5, .opq-h5 { font-size: var(--text-h5-size); line-height: var(--text-h5-lh); font-weight: var(--weight-medium); margin: 0; }
+.opq-body1  { font-size: var(--text-body1-size); line-height: var(--text-body1-lh); }
+.opq-body2  { font-size: var(--text-body2-size); line-height: var(--text-body2-lh); }
+.opq-caption{ font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--text-secondary); }
+.opq-mono   { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.opq a      { color: var(--text-link); text-decoration: none; }
+.opq a:hover{ text-decoration: underline; }
+.opq-brand  { color: var(--brand-primary); }
+.opq-muted  { color: var(--text-secondary); }
+.opq-dim    { color: var(--text-tertiary); }
