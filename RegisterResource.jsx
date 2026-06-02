@@ -5,9 +5,9 @@
 const RR_TYPES = [
   {
     key: "data",
-    label: "Data Source",
+    label: "Data Connector",
     icon: "database",
-    desc: "Connect to an external data source for retrieval.",
+    desc: "Connect to an external data connector for retrieval.",
   },
   {
     key: "tool",

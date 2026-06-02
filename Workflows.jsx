@@ -6,33 +6,8 @@ const WORKFLOWS = [
   { name: "Employee HR Assist",    createdBy: "Annemarie Selaya",  status: "Deployed", trust: "Verified", updated: "14 Apr 2026", member: true },
   { name: "Employee HR Assist V2", createdBy: "Evan McMillon",     status: "Deployed", trust: "Failed",   updated: "12 Feb 2026", member: true },
   { name: "Financial RAG",         createdBy: "Deborah Mercy",     status: "Deployed", trust: "Verified", updated: "24 Jan 2026" },
-  { name: "HR RAG v1",             createdBy: "Janice Johnson",    status: "Deployed", trust: "Verified", updated: "24 Jan 2026", member: true },
-  { name: "Legal Doc Review",      createdBy: "Priya Manikandan",  status: "Deployed", trust: "Verified", updated: "22 Jan 2026" },
   { name: "Marketing Copilot",     createdBy: "Jordan Bellamy",    status: "Draft",    trust: null,       updated: "18 Jan 2026", member: true },
-  { name: "Sales Intel",           createdBy: "Maya Ramirez",      status: "Deployed", trust: "Verified", updated: "15 Jan 2026" },
-  { name: "Contract Summarizer",   createdBy: "Priya Manikandan",  status: "Deployed", trust: "At risk",  updated: "12 Jan 2026" },
   { name: "Support Triage Agent",  createdBy: "Noah Westergaard",  status: "Draft",    trust: null,       updated: "09 Jan 2026" },
-  { name: "Recruiter Screener",    createdBy: "Jordan Bellamy",    status: "Deployed", trust: "Verified", updated: "07 Jan 2026", member: true },
-  { name: "Procurement Advisor",   createdBy: "Devon Oduya",       status: "Draft",    trust: null,       updated: "04 Jan 2026" },
-  { name: "Benefits Q&A",          createdBy: "Jordan Bellamy",    status: "Deployed", trust: "Pending",  updated: "29 Dec 2025", member: true },
-  { name: "Policy Change Auditor", createdBy: "Priya Manikandan",  status: "Deployed", trust: "Failed",   updated: "22 Dec 2025" },
-  { name: "Onboarding Guide",      createdBy: "Jordan Bellamy",    status: "Draft",    trust: null,       updated: "18 Dec 2025", member: true },
-  { name: "Expense Classifier",    createdBy: "Maya Ramirez",      status: "Deployed", trust: "Verified", updated: "14 Dec 2025" },
-  { name: "Vendor Risk Review",    createdBy: "Noah Westergaard",  status: "Deployed", trust: "At risk",  updated: "09 Dec 2025" },
-  { name: "Incident Retro Drafter",createdBy: "Devon Oduya",       status: "Draft",    trust: null,       updated: "05 Dec 2025" },
-  { name: "Internal Search",       createdBy: "Jordan Bellamy",    status: "Deployed", trust: "Verified", updated: "02 Dec 2025", member: true },
-  { name: "Release Notes Writer",  createdBy: "Jordan Bellamy",    status: "Draft",    trust: null,       updated: "27 Nov 2025" },
-  { name: "Meeting Minutes",       createdBy: "Maya Ramirez",      status: "Deployed", trust: "Verified", updated: "22 Nov 2025" },
-  { name: "Data Room Assistant",   createdBy: "Priya Manikandan",  status: "Deployed", trust: "Verified", updated: "18 Nov 2025" },
-  { name: "Compensation Modeler",  createdBy: "Devon Oduya",       status: "Draft",    trust: null,       updated: "14 Nov 2025" },
-  { name: "Security Review Bot",   createdBy: "Noah Westergaard",  status: "Deployed", trust: "At risk",  updated: "09 Nov 2025" },
-  { name: "KB Curator",            createdBy: "Annemarie Selaya",  status: "Draft",    trust: null,       updated: "04 Nov 2025" },
-  { name: "Product Feedback Miner",createdBy: "Jordan Bellamy",    status: "Deployed", trust: "Verified", updated: "30 Oct 2025" },
-  { name: "Earnings Narrative",    createdBy: "Deborah Mercy",     status: "Deployed", trust: "Verified", updated: "26 Oct 2025" },
-  { name: "Audit Log Explainer",   createdBy: "Evan McMillon",     status: "Draft",    trust: null,       updated: "22 Oct 2025" },
-  { name: "Board Deck Drafter",    createdBy: "Janice Johnson",    status: "Deployed", trust: "Verified", updated: "17 Oct 2025" },
-  { name: "Support KB Sync",       createdBy: "Maya Ramirez",      status: "Draft",    trust: null,       updated: "12 Oct 2025" },
-  { name: "Deal Desk Assistant",   createdBy: "Devon Oduya",       status: "Deployed", trust: "Verified", updated: "07 Oct 2025" },
 ];
 
 const ROWS_PER_PAGE = 10;
@@ -194,7 +169,7 @@ const WorkflowsList = () => {
       </div>
       <div className="scroll">
         <div className="page-body">
-          <div className="metric-row">
+          <div className="metric-row" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
             <div className="card metric-tile">
               <div className="val">{counts.deployed}</div>
               <div className="lbl">
@@ -207,13 +182,6 @@ const WorkflowsList = () => {
               <div className="lbl">
                 <span className="status-dot" style={{ background: "var(--opq-ink-400)" }} />
                 <span>Draft</span>
-              </div>
-            </div>
-            <div className="card metric-tile">
-              <div className="val">{counts.attention}</div>
-              <div className="lbl">
-                <span className="status-dot" style={{ background: "var(--opq-signal-red)" }} />
-                <span>Needs attention</span>
               </div>
             </div>
           </div>
