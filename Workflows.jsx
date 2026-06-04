@@ -12,6 +12,220 @@ const WORKFLOWS = [
 
 const ROWS_PER_PAGE = 10;
 
+// ---------------- Agent access control (object-level) ----------------
+// Mirrors the Resources access pattern in Registry: per-agent user grants,
+// surfaced as an Access count in the list and managed in a drill-in detail.
+
+const WF_USERS = [
+  { name: "Annemarie Selaya",   email: "annemarie@opaque.co", role: "Admin" },
+  { name: "Evan McMillon",      email: "evan@opaque.co",      role: "Admin" },
+  { name: "Deborah Mercy",      email: "deborah@opaque.co",   role: "Admin" },
+  { name: "Janice Johnson",     email: "janice@opaque.co",    role: "Builder" },
+  { name: "Priya Manikandan",   email: "priya@opaque.co",     role: "Builder" },
+  { name: "Jordan Bellamy",     email: "jordan@opaque.co",    role: "Builder" },
+  { name: "Maya Ramirez",       email: "maya@opaque.co",      role: "Builder" },
+  { name: "Noah Westergaard",   email: "noah@opaque.co",      role: "Builder" },
+  { name: "Devon Oduya",        email: "devon@opaque.co",     role: "Builder" },
+  { name: "Kiran Patel",        email: "kiran@opaque.co",     role: "Builder" },
+  { name: "Isabel Cortez",      email: "isabel@opaque.co",    role: "Builder" },
+  { name: "Ben Tatsumi",        email: "ben@opaque.co",       role: "Builder" },
+];
+
+// Seed grants per agent so the surface feels populated. Keyed by name;
+// anything not listed starts empty.
+const WF_AGENT_GRANTS = {
+  "Employee HR Assist": [
+    { email: "annemarie@opaque.co", access: true },
+    { email: "priya@opaque.co",     access: true },
+    { email: "jordan@opaque.co",    access: true },
+  ],
+  "Employee HR Assist V2": [
+    { email: "evan@opaque.co",      access: true },
+    { email: "annemarie@opaque.co", access: true },
+  ],
+  "Financial RAG": [
+    { email: "deborah@opaque.co",   access: true },
+    { email: "maya@opaque.co",      access: true },
+    { email: "noah@opaque.co",      access: false },
+  ],
+  "Marketing Copilot": [
+    { email: "jordan@opaque.co",    access: true },
+  ],
+};
+
+const wfInitialsOf = (name) => name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+const wfUserByEmail = (email) => WF_USERS.find((u) => u.email === email);
+const wfAccessCountFor = (name) => (WF_AGENT_GRANTS[name] || []).filter((g) => g.access).length;
+
+const WFAccessToggle = ({ on, onChange, disabled }) => (
+  <button
+    type="button"
+    className={`opq-toggle${on ? " on" : ""}${disabled ? " disabled" : ""}`}
+    onClick={() => !disabled && onChange(!on)}
+    aria-pressed={on}
+    disabled={disabled}
+  >
+    <span className="opq-toggle-knob" />
+  </button>
+);
+
+const WFAddUserMenu = ({ candidates, onAdd, onClose }) => {
+  const [q, setQ] = React.useState("");
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onKey); };
+  }, [onClose]);
+
+  const filtered = candidates.filter((u) =>
+    u.name.toLowerCase().includes(q.trim().toLowerCase()) ||
+    u.email.toLowerCase().includes(q.trim().toLowerCase())
+  );
+
+  return (
+    <div className="ra-add-menu" ref={ref}>
+      <label className="ra-add-search">
+        <Icon name="search" size={16} />
+        <input autoFocus placeholder="Search users" value={q} onChange={(e) => setQ(e.target.value)} />
+      </label>
+      <div className="ra-add-list">
+        {filtered.map((u) => (
+          <button key={u.email} className="ra-add-item" onClick={() => onAdd(u.email)}>
+            <span className="member-avatar">{wfInitialsOf(u.name)}</span>
+            <span className="ra-add-text">
+              <span className="member-name">{u.name}</span>
+              <span className="member-email">{u.email}</span>
+            </span>
+            <Icon name="add" size={18} />
+          </button>
+        ))}
+        {filtered.length === 0 && <div className="ra-add-empty">No users to add</div>}
+      </div>
+    </div>
+  );
+};
+
+const AgentAccessDetail = ({ agent, onBack }) => {
+  const [grants, setGrants] = React.useState(() =>
+    (WF_AGENT_GRANTS[agent.name] || []).map((g) => ({ email: g.email, access: !!g.access }))
+  );
+  const [addOpen, setAddOpen] = React.useState(false);
+
+  const update = (email, access) => setGrants((gs) => gs.map((g) => g.email === email ? { ...g, access } : g));
+  const remove = (email) => setGrants((gs) => gs.filter((g) => g.email !== email));
+  const add = (email) => { setGrants((gs) => [...gs, { email, access: true }]); setAddOpen(false); };
+
+  const candidates = WF_USERS.filter((u) => !grants.some((g) => g.email === u.email));
+  const withAccess = grants.filter((g) => g.access).length;
+
+  return (
+    <>
+      <div className="wd-page-header">
+        <div className="wd-breadcrumb">
+          <button className="icon-btn" onClick={onBack} title="Back">
+            <Icon name="arrow_back" size={20} />
+          </button>
+          <a className="wd-crumb-parent" href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>Agent Studio</a>
+          <span className="wd-crumb-sep">/</span>
+          <span className="wd-crumb-current">{agent.name}</span>
+        </div>
+      </div>
+
+      <div className="scroll">
+        <div className="page-body reg-page">
+          <div className="ra-head">
+            <div className="ra-head-icon"><Icon name="graph_3" size={24} /></div>
+            <div className="ra-head-text">
+              <h1 className="ra-title">{agent.name}</h1>
+              <div className="ra-meta">
+                <span>{agent.status}</span>
+                <span className="ra-dot">·</span>
+                <span>Created by {agent.createdBy}</span>
+                <span className="ra-dot">·</span>
+                <span>Updated {agent.updated}</span>
+              </div>
+            </div>
+          </div>
+
+          <section className="ra-section">
+            <div className="ra-section-head">
+              <div>
+                <h2 className="ra-section-title">Access</h2>
+                <p className="ra-section-desc">Grant specific users access to this agent, letting them view its
+                  configuration and run it. Access is scoped to this agent only.
+                </p>
+              </div>
+              <div className="ra-add-wrap">
+                <Button variant="primary" icon="person_add" size="sm" onClick={() => setAddOpen((o) => !o)}>
+                  Add users
+                </Button>
+                {addOpen &&
+                  <WFAddUserMenu candidates={candidates} onAdd={add} onClose={() => setAddOpen(false)} />
+                }
+              </div>
+            </div>
+
+            <div className="ra-summary">
+              <span><strong>{withAccess}</strong> {withAccess === 1 ? "user has" : "users have"} access</span>
+            </div>
+
+            <div className="table-wrap">
+              <table className="opq-table wf-table ra-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th className="ra-col-toggle">Access</th>
+                    <th className="actions-col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {grants.map((g) => {
+                    const u = wfUserByEmail(g.email);
+                    if (!u) return null;
+                    return (
+                      <tr key={g.email}>
+                        <td>
+                          <div className="member-cell">
+                            <span className="member-avatar">{wfInitialsOf(u.name)}</span>
+                            <div>
+                              <div className="member-name">{u.name}</div>
+                              <div className="member-email">{u.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="ra-col-toggle">
+                          <WFAccessToggle on={g.access} onChange={(v) => update(g.email, v)} />
+                        </td>
+                        <td className="actions-col">
+                          <button className="icon-btn" title="Remove access" onClick={() => remove(g.email)}>
+                            <Icon name="close" size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {grants.length === 0 &&
+                    <tr>
+                      <td colSpan={3} className="ra-empty">
+                        <Icon name="lock_person" size={28} />
+                        <div className="ra-empty-title">No users have access yet</div>
+                        <div className="ra-empty-body">Add users to grant access to this agent.</div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </>
+  );
+};
+
 const WF_STATUS_COLORS = {
   "Deployed": "var(--opq-emerald-400)",
   "Draft":    "var(--opq-ink-400)",
@@ -85,6 +299,15 @@ const WorkflowsList = () => {
   const [page, setPage] = React.useState(1);
   const [sort, setSort] = React.useState({ field: null, dir: "asc" });
   const [query, setQuery] = React.useState("");
+  const [openAgent, setOpenAgent] = React.useState(null);
+  const [openMenu, setOpenMenu] = React.useState(null);
+
+  React.useEffect(() => {
+    if (openMenu === null) return;
+    const onDoc = () => setOpenMenu(null);
+    document.addEventListener("click", onDoc);
+    return () => document.removeEventListener("click", onDoc);
+  }, [openMenu]);
 
   const onSort = (field) => {
     setSort((s) => s.field === field
@@ -132,6 +355,11 @@ const WorkflowsList = () => {
   const rows = filtered.slice(startIdx, startIdx + ROWS_PER_PAGE);
   const rangeFrom = total === 0 ? 0 : startIdx + 1;
   const rangeTo = Math.min(startIdx + ROWS_PER_PAGE, total);
+
+  // Drill-in: per-agent access management.
+  if (openAgent) {
+    return <AgentAccessDetail agent={openAgent} onBack={() => setOpenAgent(null)} />;
+  }
 
   // First-run empty state (no accessible workflows at all).
   if (scoped.length === 0) {
@@ -206,6 +434,7 @@ const WorkflowsList = () => {
                   <SortHeader label="Name"         field="name"      sort={sort} onSort={onSort} />
                   <SortHeader label="Status"       field="status"    sort={sort} onSort={onSort} />
                   <SortHeader label="Created by"   field="createdBy" sort={sort} onSort={onSort} />
+                  <th><span className="th-inner"><span>Access</span></span></th>
                   <SortHeader label="Last updated" field="updated"   sort={sort} onSort={onSort} last />
                   <th className="actions-col"></th>
                 </tr>
@@ -218,17 +447,30 @@ const WorkflowsList = () => {
                     </td>
                     <td><WFStatusCell status={w.status} /></td>
                     <td>{w.createdBy}</td>
+                    <td>
+                      <span className="reg-access-count" title={`${wfAccessCountFor(w.name)} user${wfAccessCountFor(w.name) === 1 ? "" : "s"} with access`}>
+                        <Icon name="group" size={16} />
+                        <span>{wfAccessCountFor(w.name)}</span>
+                      </span>
+                    </td>
                     <td>{w.updated}</td>
-                    <td className="actions-col">
-                      <button className="icon-btn" title="More">
+                    <td className="actions-col" style={{ position: "relative" }}>
+                      <button className="icon-btn" title="More" onClick={(e) => { e.stopPropagation(); setOpenMenu(openMenu === w.name ? null : w.name); }}>
                         <Icon name="more_vert" size={18} />
                       </button>
+                      {openMenu === w.name &&
+                        <div className="reg-row-menu" onClick={(e) => e.stopPropagation()}>
+                          <button onClick={() => { setOpenMenu(null); setOpenAgent(w); }}><Icon name="manage_accounts" size={16} /><span>Manage access</span></button>
+                          <button onClick={() => setOpenMenu(null)}><Icon name="edit" size={16} /><span>Edit agent</span></button>
+                          <button className="reg-row-menu-danger" onClick={() => setOpenMenu(null)}><Icon name="delete" size={16} /><span>Delete</span></button>
+                        </div>
+                      }
                     </td>
                   </tr>
                 ))}
                 {rows.length === 0 && (
                   <tr>
-                    <td colSpan={5} style={{ textAlign: "center", padding: "48px 12px", color: "var(--opq-ink-400)" }}>
+                    <td colSpan={6} style={{ textAlign: "center", padding: "48px 12px", color: "var(--opq-ink-400)" }}>
                       No workflows match your search.
                     </td>
                   </tr>
