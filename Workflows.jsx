@@ -214,7 +214,7 @@ const WorkflowsList = () => {
                 {rows.map((w) => (
                   <tr key={w.name}>
                     <td>
-                      <a className="link" href="#" onClick={(e) => e.preventDefault()}>{w.name}</a>
+                      <a className="link" href="AgentStudio.html">{w.name}</a>
                     </td>
                     <td><WFStatusCell status={w.status} /></td>
                     <td>{w.createdBy}</td>
