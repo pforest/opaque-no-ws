@@ -134,9 +134,156 @@ const OrgPoliciesTab = () =>
   </div>;
 
 
+// ---------- Resource access catalog (mirrors Registry seed data) ----------
+
+const RESOURCE_CATALOG = [
+  { name: "HR Policies Corpus", type: "Data Connectors", icon: "database" },
+  { name: "Salesforce CRM",     type: "Data Connectors", icon: "database" },
+  { name: "Confluence Wiki",    type: "Data Connectors", icon: "database" },
+  { name: "Web Search",         type: "Agent Tools",     icon: "construction" },
+  { name: "SQL Query Tool",     type: "Agent Tools",     icon: "construction" },
+  { name: "Code Interpreter",   type: "Agent Tools",     icon: "construction" },
+  { name: "Claude Sonnet 4.5",  type: "Models",          icon: "network_intel_node" },
+  { name: "Claude Haiku 4.5",   type: "Models",          icon: "network_intel_node" },
+  { name: "Claude Opus 4",      type: "Models",          icon: "network_intel_node" },
+];
+
+// Grants keyed by resource name → list of { email, view, use }. Mirrors
+// Registry's DEFAULT_GRANTS so both surfaces tell the same story.
+const RESOURCE_GRANTS = {
+  "HR Policies Corpus": [
+    { email: "annemarie@opaque.co", view: true, use: true },
+    { email: "priya@opaque.co",     view: true, use: true },
+    { email: "jordan@opaque.co",    view: true, use: false },
+  ],
+  "Salesforce CRM": [
+    { email: "deborah@opaque.co", view: true, use: true },
+    { email: "maya@opaque.co",    view: true, use: true },
+  ],
+  "Claude Sonnet 4.5": [
+    { email: "annemarie@opaque.co", view: true, use: true },
+    { email: "evan@opaque.co",      view: true, use: true },
+    { email: "jordan@opaque.co",    view: true, use: true },
+    { email: "maya@opaque.co",      view: true, use: false },
+  ],
+};
+
+// Invert the grant map into a per-user list of resource permissions.
+// A user has access to a resource if any grant exists for them on it.
+const permissionsForUser = (email) =>
+  RESOURCE_CATALOG.map((res) => {
+    const g = (RESOURCE_GRANTS[res.name] || []).find((x) => x.email === email);
+    return { ...res, access: !!(g && (g.view || g.use)) };
+  });
+
+const UserPermToggle = ({ on, onChange }) => (
+  <button type="button" className={`opq-toggle${on ? " on" : ""}`} onClick={() => onChange(!on)} aria-pressed={on}>
+    <span className="opq-toggle-knob" />
+  </button>
+);
+
+const UserPermissionsDetail = ({ user, onBack }) => {
+  const initials = (name) => name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+  const [perms, setPerms] = React.useState(() => permissionsForUser(user.email));
+
+  const update = (name, access) => setPerms((ps) => ps.map((p) =>
+    p.name === name ? { ...p, access } : p
+  ));
+
+  const grouped = ["Data Connectors", "Agent Tools", "Models"].map((type) => ({
+    type,
+    rows: perms.filter((p) => p.type === type),
+  }));
+
+  const accessCount = perms.filter((p) => p.access).length;
+
+  const roleChipVariant = (role) => (role === "Admin" ? "info" : "neutral");
+
+  return (
+    <>
+      <div className="wd-page-header">
+        <div className="wd-breadcrumb">
+          <button className="icon-btn" onClick={onBack} title="Back">
+            <Icon name="arrow_back" size={20} />
+          </button>
+          <a className="wd-crumb-parent" href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>Org Settings</a>
+          <span className="wd-crumb-sep">/</span>
+          <span className="wd-crumb-mid">Users</span>
+          <span className="wd-crumb-sep">/</span>
+          <span className="wd-crumb-current">{user.name}</span>
+        </div>
+      </div>
+
+      <div className="scroll">
+        <div className="page-body">
+          <div className="ra-head">
+            <span className="member-avatar up-avatar">{initials(user.name)}</span>
+            <div className="ra-head-text">
+              <h1 className="ra-title">{user.name}</h1>
+              <div className="ra-meta">
+                <span>{user.email}</span>
+                <span className="ra-dot">·</span>
+                <Chip variant={roleChipVariant(user.role)}>{user.role}</Chip>
+              </div>
+            </div>
+          </div>
+
+          <section className="ra-section">
+            <div className="ra-section-head">
+              <div>
+                <h2 className="ra-section-title">Resource permissions</h2>
+                <p className="ra-section-desc">
+                  Which resources <strong>{user.name.split(" ")[0]}</strong> can use as a node in their agents.
+                </p>
+              </div>
+            </div>
+
+            <div className="ra-summary">
+              <span><strong>{accessCount}</strong> of {perms.length} resources accessible</span>
+            </div>
+
+            <div className="table-wrap">
+              <table className="opq-table wf-table ra-table">
+                <thead>
+                  <tr>
+                    <th>Resource</th>
+                    <th className="ra-col-toggle">Access</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {grouped.map((group) => (
+                    <React.Fragment key={group.type}>
+                      <tr className="up-group-row">
+                        <td colSpan={2}>{group.type}</td>
+                      </tr>
+                      {group.rows.map((p) => (
+                        <tr key={p.name}>
+                          <td>
+                            <div className="up-res-cell">
+                              <span className="up-res-icon"><Icon name={p.icon} size={18} /></span>
+                              <span className="member-name">{p.name}</span>
+                            </div>
+                          </td>
+                          <td className="ra-col-toggle">
+                            <UserPermToggle on={p.access} onChange={(v) => update(p.name, v)} />
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </>
+  );
+};
+
 // ---------- Users tab ----------
 
-const OrgUsersTab = () => {
+const OrgUsersTab = ({ onOpen }) => {
   const [query, setQuery] = React.useState("");
   const [roleFilter, setRoleFilter] = React.useState("All roles");
   const ROLES = ["All roles", "Admin", "Builder"];
@@ -196,7 +343,7 @@ const OrgUsersTab = () => {
           </thead>
           <tbody>
             {filtered.map((m) =>
-            <tr key={m.email}>
+            <tr key={m.email} className="up-row" onClick={() => onOpen && onOpen(m)}>
                 <td>
                   <div className="member-cell">
                     <span className="member-avatar">{initials(m.name)}</span>
@@ -209,8 +356,8 @@ const OrgUsersTab = () => {
                 <td><Chip variant={roleChipVariant(m.role)}>{m.role}</Chip></td>
                 <td className="cell-muted">{m.added}</td>
                 <td className="cell-muted">{m.last}</td>
-                <td className="actions-col">
-                  <button className="icon-btn" title="More"><Icon name="more_vert" size={18} /></button>
+                <td className="actions-col" onClick={(e) => e.stopPropagation()}>
+                  <button className="icon-btn" title="View permissions" onClick={() => onOpen && onOpen(m)}><Icon name="chevron_right" size={20} /></button>
                 </td>
               </tr>
             )}
@@ -281,6 +428,12 @@ const OrgGeneralTab = () => {
 
 const OrgSettings = () => {
   const [tab, setTab] = React.useState("Users");
+  const [openUser, setOpenUser] = React.useState(null);
+
+  if (openUser) {
+    return <UserPermissionsDetail user={openUser} onBack={() => setOpenUser(null)} />;
+  }
+
   return (
     <>
       <PageHeader
@@ -291,7 +444,7 @@ const OrgSettings = () => {
       
       <div className="scroll">
         <div className="page-body">
-          {tab === "Users" && <OrgUsersTab />}
+          {tab === "Users" && <OrgUsersTab onOpen={setOpenUser} />}
           {tab === "Policies" && <OrgPoliciesTab />}
           {tab === "General" && <OrgGeneralTab />}
         </div>

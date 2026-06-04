@@ -255,7 +255,7 @@ const ContainersTab = () => {
             {rows.map((c) =>
             <tr key={c.name}>
                 <td>
-                  <a className="link reg-name" href="TrustCenter.html">{c.name}</a>
+                  <span className="reg-name">{c.name}</span>
                 </td>
                 <td>{c.registeredBy}</td>
                 <td className="reg-muted">{c.registered}</td>
@@ -330,7 +330,222 @@ const BoundCell = ({ boundTo, onBind }) => {
 
 };
 
-const ResourcesTab = () => {
+// ---------------- Resource access (drill-in) ----------------
+
+const REG_USERS = [
+{ name: "Annemarie Selaya", email: "annemarie@opaque.co", role: "Admin" },
+{ name: "Evan McMillon", email: "evan@opaque.co", role: "Admin" },
+{ name: "Deborah Mercy", email: "deborah@opaque.co", role: "Admin" },
+{ name: "Janice Johnson", email: "janice@opaque.co", role: "Builder" },
+{ name: "Priya Manikandan", email: "priya@opaque.co", role: "Builder" },
+{ name: "Jordan Bellamy", email: "jordan@opaque.co", role: "Builder" },
+{ name: "Maya Ramirez", email: "maya@opaque.co", role: "Builder" },
+{ name: "Noah Westergaard", email: "noah@opaque.co", role: "Builder" },
+{ name: "Devon Oduya", email: "devon@opaque.co", role: "Builder" },
+{ name: "Kiran Patel", email: "kiran@opaque.co", role: "Builder" },
+{ name: "Isabel Cortez", email: "isabel@opaque.co", role: "Builder" },
+{ name: "Ben Tatsumi", email: "ben@opaque.co", role: "Builder" }];
+
+
+// Seed grants per resource so the surface feels populated. Keyed by name;
+// anything not listed starts empty.
+const DEFAULT_GRANTS = {
+  "HR Policies Corpus": [
+  { email: "annemarie@opaque.co", view: true, use: true },
+  { email: "priya@opaque.co", view: true, use: true },
+  { email: "jordan@opaque.co", view: true, use: false }],
+
+  "Salesforce CRM": [
+  { email: "deborah@opaque.co", view: true, use: true },
+  { email: "maya@opaque.co", view: true, use: true }],
+
+  "Claude Sonnet 4.5": [
+  { email: "annemarie@opaque.co", view: true, use: true },
+  { email: "evan@opaque.co", view: true, use: true },
+  { email: "jordan@opaque.co", view: true, use: true },
+  { email: "maya@opaque.co", view: true, use: false }]
+
+};
+
+const initialsOf = (name) => name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+const userByEmail = (email) => REG_USERS.find((u) => u.email === email);
+
+const AccessToggle = ({ on, onChange, disabled }) =>
+<button
+  type="button"
+  className={`opq-toggle${on ? " on" : ""}${disabled ? " disabled" : ""}`}
+  onClick={() => !disabled && onChange(!on)}
+  aria-pressed={on}
+  disabled={disabled}>
+  
+    <span className="opq-toggle-knob" />
+  </button>;
+
+
+const AddUserMenu = ({ candidates, onAdd, onClose }) => {
+  const [q, setQ] = React.useState("");
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const onDoc = (e) => {if (ref.current && !ref.current.contains(e.target)) onClose();};
+    const onKey = (e) => {if (e.key === "Escape") onClose();};
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {document.removeEventListener("mousedown", onDoc);document.removeEventListener("keydown", onKey);};
+  }, [onClose]);
+
+  const filtered = candidates.filter((u) =>
+  u.name.toLowerCase().includes(q.trim().toLowerCase()) ||
+  u.email.toLowerCase().includes(q.trim().toLowerCase())
+  );
+
+  return (
+    <div className="ra-add-menu" ref={ref}>
+      <label className="ra-add-search">
+        <Icon name="search" size={16} />
+        <input autoFocus placeholder="Search users" value={q} onChange={(e) => setQ(e.target.value)} />
+      </label>
+      <div className="ra-add-list">
+        {filtered.map((u) =>
+        <button key={u.email} className="ra-add-item" onClick={() => onAdd(u.email)}>
+            <span className="member-avatar">{initialsOf(u.name)}</span>
+            <span className="ra-add-text">
+              <span className="member-name">{u.name}</span>
+              <span className="member-email">{u.email}</span>
+            </span>
+            <Icon name="add" size={18} />
+          </button>
+        )}
+        {filtered.length === 0 && <div className="ra-add-empty">No users to add</div>}
+      </div>
+    </div>);
+
+};
+
+const ResourceDetail = ({ resource, onBack }) => {
+  const [grants, setGrants] = React.useState(() =>
+  (DEFAULT_GRANTS[resource.name] || []).map((g) => ({ email: g.email, access: !!(g.view || g.use) }))
+  );
+  const [addOpen, setAddOpen] = React.useState(false);
+
+  const update = (email, access) => setGrants((gs) => gs.map((g) =>
+  g.email === email ? { ...g, access } : g
+  ));
+  const remove = (email) => setGrants((gs) => gs.filter((g) => g.email !== email));
+  const add = (email) => {setGrants((gs) => [...gs, { email, access: true }]);setAddOpen(false);};
+
+  const candidates = REG_USERS.filter((u) => !grants.some((g) => g.email === u.email));
+  const withAccess = grants.filter((g) => g.access).length;
+
+  return (
+    <>
+      <div className="wd-page-header">
+        <div className="wd-breadcrumb">
+          <button className="icon-btn" onClick={onBack} title="Back">
+            <Icon name="arrow_back" size={20} />
+          </button>
+          <a className="wd-crumb-parent" href="#" onClick={(e) => {e.preventDefault();onBack();}}>Registry</a>
+          <span className="wd-crumb-sep">/</span>
+          <span className="wd-crumb-mid">Resources</span>
+          <span className="wd-crumb-sep">/</span>
+          <span className="wd-crumb-current">{resource.name}</span>
+        </div>
+      </div>
+
+      <div className="scroll">
+        <div className="page-body reg-page">
+          <div className="ra-head">
+            <div className="ra-head-icon"><Icon name={TYPE_ICONS_REG[resource.type] || "category"} size={24} /></div>
+            <div className="ra-head-text">
+              <h1 className="ra-title">{resource.name}</h1>
+              <div className="ra-meta">
+                <span>{resource.type}</span>
+                <span className="ra-dot">·</span>
+                <span>Registered by {resource.registeredBy}</span>
+                <span className="ra-dot">·</span>
+                <span>Updated {resource.updated}</span>
+              </div>
+            </div>
+          </div>
+
+          <section className="ra-section">
+            <div className="ra-section-head">
+              <div>
+                <h2 className="ra-section-title">Access</h2>
+                <p className="ra-section-desc">Grant specific users access to this resource,  letting them use it as a node in their agents.
+
+
+                </p>
+              </div>
+              <div className="ra-add-wrap">
+                <Button variant="primary" icon="person_add" size="sm" onClick={() => setAddOpen((o) => !o)}>
+                  Add users
+                </Button>
+                {addOpen &&
+                <AddUserMenu candidates={candidates} onAdd={add} onClose={() => setAddOpen(false)} />
+                }
+              </div>
+            </div>
+
+            <div className="ra-summary">
+              <span><strong>{withAccess}</strong> {withAccess === 1 ? "user has" : "users have"} access</span>
+            </div>
+
+            <div className="table-wrap">
+              <table className="opq-table wf-table ra-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th className="ra-col-toggle">Access</th>
+                    <th className="actions-col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {grants.map((g) => {
+                    const u = userByEmail(g.email);
+                    if (!u) return null;
+                    return (
+                      <tr key={g.email}>
+                        <td>
+                          <div className="member-cell">
+                            <span className="member-avatar">{initialsOf(u.name)}</span>
+                            <div>
+                              <div className="member-name">{u.name}</div>
+                              <div className="member-email">{u.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="ra-col-toggle">
+                          <AccessToggle on={g.access} onChange={(v) => update(g.email, v)} />
+                        </td>
+                        <td className="actions-col">
+                          <button className="icon-btn" title="Remove access" onClick={() => remove(g.email)}>
+                            <Icon name="close" size={18} />
+                          </button>
+                        </td>
+                      </tr>);
+
+                  })}
+                  {grants.length === 0 &&
+                  <tr>
+                      <td colSpan={3} className="ra-empty">
+                        <Icon name="lock_person" size={28} />
+                        <div className="ra-empty-title">No users have access yet</div>
+                        <div className="ra-empty-body">Add users to grant access to this resource.</div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </>);
+
+};
+
+
+const ResourcesTab = ({ onOpen }) => {
   const [page, setPage] = React.useState(1);
   const [sort, setSort] = React.useState({ field: null, dir: "asc" });
   const [query, setQuery] = React.useState("");
@@ -432,7 +647,7 @@ const ResourcesTab = () => {
             {rows.map((r) =>
             <tr key={r.name}>
                 <td>
-                  <a className="link" href="#" onClick={(e) => e.preventDefault()}>{r.name}</a>
+                  <a className="link" href="#" onClick={(e) => {e.preventDefault();onOpen && onOpen(r);}}>{r.name}</a>
                 </td>
                 <td><RegTypeCell type={r.type} /></td>
                 <td>{r.registeredBy}</td>
@@ -443,6 +658,7 @@ const ResourcesTab = () => {
                   </button>
                   {openMenu === r.name &&
                 <div className="reg-row-menu" onClick={(e) => e.stopPropagation()}>
+                      <button onClick={() => {setOpenMenu(null);onOpen && onOpen(r);}}><Icon name="manage_accounts" size={16} /><span>Manage access</span></button>
                       <button><Icon name="edit" size={16} /><span>Edit configuration</span></button>
                       <button className="reg-row-menu-danger"><Icon name="delete" size={16} /><span>Unregister</span></button>
                     </div>
@@ -492,6 +708,11 @@ const ResourcesTab = () => {
 
 const Registry = () => {
   const [tab, setTab] = React.useState("Containers");
+  const [openResource, setOpenResource] = React.useState(null);
+
+  if (openResource) {
+    return <ResourceDetail resource={openResource} onBack={() => setOpenResource(null)} />;
+  }
 
   return (
     <>
@@ -503,7 +724,7 @@ const Registry = () => {
       
       <div className="scroll">
         <div className="page-body reg-page">
-          {tab === "Containers" ? <ContainersTab /> : <ResourcesTab />}
+          {tab === "Containers" ? <ContainersTab /> : <ResourcesTab onOpen={setOpenResource} />}
         </div>
       </div>
     </>);
