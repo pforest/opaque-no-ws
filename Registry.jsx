@@ -718,7 +718,7 @@ const ResourcesTab = ({ onOpen }) => {
 // ---------------- Main Registry component ----------------
 
 const Registry = () => {
-  const [tab, setTab] = React.useState("Containers");
+  const [tab, setTab] = React.useState("Resources");
   const [openResource, setOpenResource] = React.useState(null);
 
   if (openResource) {
@@ -729,7 +729,7 @@ const Registry = () => {
     <>
       <PageHeader
         title="Registry"
-        tabs={["Containers", "Resources"]}
+        tabs={["Resources", "Containers"]}
         activeTab={tab}
         onTab={setTab} />
       
