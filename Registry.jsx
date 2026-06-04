@@ -370,6 +370,10 @@ const DEFAULT_GRANTS = {
 const initialsOf = (name) => name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 const userByEmail = (email) => REG_USERS.find((u) => u.email === email);
 
+// Count of users with access (view or use) to a given resource.
+const accessCountFor = (name) =>
+  (DEFAULT_GRANTS[name] || []).filter((g) => g.view || g.use).length;
+
 const AccessToggle = ({ on, onChange, disabled }) =>
 <button
   type="button"
@@ -639,6 +643,7 @@ const ResourcesTab = ({ onOpen }) => {
               <SortHeader label="Name" field="name" sort={sort} onSort={onSort} />
               <SortHeader label="Type" field="type" sort={sort} onSort={onSort} />
               <SortHeader label="Registered by" field="registeredBy" sort={sort} onSort={onSort} />
+              <th><span className="th-inner"><span>Access</span></span></th>
               <SortHeader label="Last updated" field="updated" sort={sort} onSort={onSort} last />
               <th className="actions-col"></th>
             </tr>
@@ -651,6 +656,12 @@ const ResourcesTab = ({ onOpen }) => {
                 </td>
                 <td><RegTypeCell type={r.type} /></td>
                 <td>{r.registeredBy}</td>
+                <td>
+                  <span className="reg-access-count" title={`${accessCountFor(r.name)} user${accessCountFor(r.name) === 1 ? "" : "s"} with access`}>
+                    <Icon name="group" size={16} />
+                    <span>{accessCountFor(r.name)}</span>
+                  </span>
+                </td>
                 <td className="reg-muted">{r.updated}</td>
                 <td className="actions-col" style={{ position: "relative" }}>
                   <button className="icon-btn" title="More" onClick={(e) => {e.stopPropagation();setOpenMenu(openMenu === r.name ? null : r.name);}}>
@@ -668,7 +679,7 @@ const ResourcesTab = ({ onOpen }) => {
             )}
             {rows.length === 0 &&
             <tr>
-                <td colSpan={5} style={{ textAlign: "center", padding: "48px 12px", color: "var(--opq-ink-400)" }}>
+                <td colSpan={6} style={{ textAlign: "center", padding: "48px 12px", color: "var(--opq-ink-400)" }}>
                   No resources match your filters.
                 </td>
               </tr>
