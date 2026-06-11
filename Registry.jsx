@@ -1,173 +1,7 @@
-// Registry — org-level home for Containers + Resources registration.
-// Default tab: Containers. Drilling into a container links to Trust Center.
+// Registry — org-level home for every registered item: containers, data
+// connectors, agent tools, and models — in a single unified list.
 
-const CONTAINERS = [
-{
-  name: "hr-assist",
-  image: "ghcr.io/opaque-co/hr-assist@sha256:7f3c…a91d",
-  workspaces: ["HR Internal"],
-  workspaceCount: 1,
-  status: "Registered",
-  method: "CLI",
-  lastAttested: "24 Jan 2026, 3:41 PM",
-  attestStatus: "1 FAILED",
-  registeredBy: "Annemarie Selaya",
-  registered: "12 Jan 2026"
-},
-{
-  name: "fin-rag",
-  image: "ghcr.io/opaque-co/fin-rag@sha256:b4e1…0c2f",
-  workspaces: ["Finance Department"],
-  workspaceCount: 1,
-  status: "Registered",
-  method: "CLI",
-  lastAttested: "24 Jan 2026, 3:38 PM",
-  attestStatus: "ALL VERIFIED",
-  registeredBy: "Deborah Mercy",
-  registered: "08 Jan 2026"
-},
-{
-  name: "fin-rag-v3",
-  image: "ghcr.io/opaque-co/fin-rag@sha256:c9d2…5b71",
-  workspaces: [],
-  workspaceCount: 0,
-  status: "Registered",
-  method: "CLI",
-  lastAttested: "—",
-  attestStatus: "Not yet attested",
-  registeredBy: "Deborah Mercy",
-  registered: "06 Jan 2026"
-},
-{
-  name: "hr-rag-v2",
-  image: "ghcr.io/opaque-co/hr-rag@sha256:1a8b…ef03",
-  workspaces: ["HR Internal"],
-  workspaceCount: 1,
-  status: "Registered",
-  method: "CLI",
-  lastAttested: "24 Jan 2026, 3:41 PM",
-  attestStatus: "ALL VERIFIED",
-  registeredBy: "Annemarie Selaya",
-  registered: "29 Dec 2025"
-},
-{
-  name: "claims-analytics",
-  image: "ghcr.io/opaque-co/claims@sha256:e740…ba6c",
-  workspaces: ["Finance Department", "Sales & Marketing"],
-  workspaceCount: 2,
-  status: "Registered",
-  method: "CLI",
-  lastAttested: "23 Jan 2026, 11:02 AM",
-  attestStatus: "ALL VERIFIED",
-  registeredBy: "Priya Manikandan",
-  registered: "18 Dec 2025"
-},
-{
-  name: "payroll-data-api",
-  image: "ghcr.io/opaque-co/payroll@sha256:32fa…981b",
-  workspaces: ["Finance Department"],
-  workspaceCount: 1,
-  status: "Pending review",
-  method: "CLI",
-  lastAttested: "—",
-  attestStatus: "Not yet attested",
-  registeredBy: "Deborah Mercy",
-  registered: "04 Jan 2026"
-},
-{
-  name: "vendor-doc-ingest",
-  image: "ghcr.io/opaque-co/vendor-doc@sha256:5c81…77ee",
-  workspaces: [],
-  workspaceCount: 0,
-  status: "Pending review",
-  method: "CLI",
-  lastAttested: "—",
-  attestStatus: "Not yet attested",
-  registeredBy: "Priya Manikandan",
-  registered: "02 Jan 2026"
-},
-{
-  name: "support-summarizer",
-  image: "ghcr.io/opaque-co/support-sum@sha256:9b34…2dd1",
-  workspaces: ["Sales & Marketing"],
-  workspaceCount: 1,
-  status: "Registered",
-  method: "CLI",
-  lastAttested: "22 Jan 2026, 8:14 AM",
-  attestStatus: "ALL VERIFIED",
-  registeredBy: "Maya Ramirez",
-  registered: "21 Dec 2025"
-},
-{
-  name: "marketing-personalize",
-  image: "ghcr.io/opaque-co/mkt-personalize@sha256:aa12…bb88",
-  workspaces: ["Sales & Marketing"],
-  workspaceCount: 1,
-  status: "Registered",
-  method: "CLI",
-  lastAttested: "21 Jan 2026, 4:50 PM",
-  attestStatus: "ALL VERIFIED",
-  registeredBy: "Evan McMillon",
-  registered: "14 Dec 2025"
-},
-{
-  name: "benefits-rag",
-  image: "ghcr.io/opaque-co/benefits-rag@sha256:dd09…44a2",
-  workspaces: ["HR Internal"],
-  workspaceCount: 1,
-  status: "Registered",
-  method: "CLI",
-  lastAttested: "20 Jan 2026, 9:33 AM",
-  attestStatus: "ALL VERIFIED",
-  registeredBy: "Annemarie Selaya",
-  registered: "10 Dec 2025"
-},
-{
-  name: "leads-scorer",
-  image: "ghcr.io/opaque-co/leads-scorer@sha256:71b9…3a07",
-  workspaces: [],
-  workspaceCount: 0,
-  status: "Deregistered",
-  method: "CLI",
-  lastAttested: "12 Dec 2025, 2:41 PM",
-  attestStatus: "Inactive",
-  registeredBy: "Jordan Bellamy",
-  registered: "30 Nov 2025"
-},
-{
-  name: "compliance-monitor",
-  image: "ghcr.io/opaque-co/compliance@sha256:0fa1…6c4d",
-  workspaces: ["Finance Department", "HR Internal"],
-  workspaceCount: 2,
-  status: "Registered",
-  method: "CLI",
-  lastAttested: "19 Jan 2026, 6:12 PM",
-  attestStatus: "ALL VERIFIED",
-  registeredBy: "Noah Westergaard",
-  registered: "22 Nov 2025"
-}];
-
-
-const STATUS_FILTERS = ["All statuses", "Registered", "Pending review", "Deregistered"];
 const ROWS_PER_PAGE_REG = 10;
-
-// ---------------- Status chips ----------------
-
-const regStatusChip = (status) => {
-  if (status === "Registered") return <Chip variant="success-out">REGISTERED</Chip>;
-  if (status === "Pending review") return <Chip variant="warn">PENDING REVIEW</Chip>;
-  if (status === "Deregistered") return <Chip variant="neutral">DEREGISTERED</Chip>;
-  return <Chip variant="neutral">{status}</Chip>;
-};
-
-const attestChip = (status) => {
-  if (status === "ALL VERIFIED") return <Chip variant="success-out">ALL VERIFIED</Chip>;
-  if (status === "1 FAILED") return <Chip variant="error">1 FAILED</Chip>;
-  if (status === "FAILED") return <Chip variant="error">FAILED</Chip>;
-  if (status === "Not yet attested") return <span className="reg-muted">Not yet attested</span>;
-  if (status === "Inactive") return <span className="reg-muted">—</span>;
-  return <Chip variant="neutral">{status}</Chip>;
-};
 
 // ---------------- Workspace permissions cell ----------------
 
@@ -186,108 +20,14 @@ const WorkspacePerms = ({ workspaces }) => {
 
 };
 
-// ---------------- Containers tab ----------------
-
+// Containers — registered via the CLI. They live in the same unified list as
+// resources, distinguished by type "Containers".
 const REG_CONTAINERS = [
-{ name: "HR Assist", registeredBy: "Annemarie Selaya", registered: "14 Apr 2026" },
-{ name: "fin-rag", registeredBy: "Evan McMillon", registered: "12 Feb 2026" },
-{ name: "fin-rag-v3", registeredBy: "Deborah Mercy", registered: "24 Jan 2026" },
-{ name: "HR RAG v1", registeredBy: "Janice Johnson", registered: "24 Jan 2026" }];
+{ name: "HR Assist",  type: "Containers", registeredBy: "Annemarie Selaya", updated: "14 Apr 2026", workspaces: ["HR Internal"] },
+{ name: "fin-rag",    type: "Containers", registeredBy: "Evan McMillon",     updated: "12 Feb 2026", workspaces: ["Finance Department"] },
+{ name: "fin-rag-v3", type: "Containers", registeredBy: "Deborah Mercy",     updated: "24 Jan 2026", workspaces: [] },
+{ name: "HR RAG v1",  type: "Containers", registeredBy: "Janice Johnson",    updated: "24 Jan 2026", workspaces: ["HR Internal"] }];
 
-
-const ContainersTab = () => {
-  const [page, setPage] = React.useState(1);
-  const [sort, setSort] = React.useState({ field: null, dir: "asc" });
-
-  const onSort = (field) => {
-    setSort((s) => s.field === field ?
-    { field, dir: s.dir === "asc" ? "desc" : "asc" } :
-    { field, dir: "asc" });
-    setPage(1);
-  };
-
-  const filtered = React.useMemo(() => {
-    let list = [...REG_CONTAINERS];
-    if (sort.field) {
-      const dir = sort.dir === "asc" ? 1 : -1;
-      list = list.sort((a, b) => {
-        const av = a[sort.field] || "";
-        const bv = b[sort.field] || "";
-        return av < bv ? -1 * dir : av > bv ? 1 * dir : 0;
-      });
-    }
-    return list;
-  }, [sort]);
-
-  const total = filtered.length;
-  const pageCount = Math.max(1, Math.ceil(total / ROWS_PER_PAGE_REG));
-  const safePage = Math.min(page, pageCount);
-  const startIdx = (safePage - 1) * ROWS_PER_PAGE_REG;
-  const rows = filtered.slice(startIdx, startIdx + ROWS_PER_PAGE_REG);
-  const rangeFrom = total === 0 ? 0 : startIdx + 1;
-  const rangeTo = Math.min(startIdx + ROWS_PER_PAGE_REG, total);
-
-  return (
-    <>
-      <div className="reg-info-banner">
-        <Icon name="info" size={20} />
-        <span className="reg-info-text">Container registration is CLI-only.
-
-
-        </span>
-        <a className="reg-info-link" href="#" onClick={(e) => e.preventDefault()}>
-          View CLI docs
-          <Icon name="arrow_outward" size={16} />
-        </a>
-      </div>
-
-      <div className="table-wrap">
-        <table className="opq-table wf-table reg-table">
-          <thead>
-            <tr>
-              <SortHeader label="Name" field="name" sort={sort} onSort={onSort} />
-              <SortHeader label="Registered by" field="registeredBy" sort={sort} onSort={onSort} />
-              <SortHeader label="Date registered" field="registered" sort={sort} onSort={onSort} last />
-              <th className="actions-col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((c) =>
-            <tr key={c.name}>
-                <td>
-                  <span className="reg-name">{c.name}</span>
-                </td>
-                <td>{c.registeredBy}</td>
-                <td className="reg-muted">{c.registered}</td>
-                <td className="actions-col">
-                  <button className="icon-btn" title="More">
-                    <Icon name="more_vert" size={18} />
-                  </button>
-                </td>
-              </tr>
-            )}
-            {rows.length === 0 &&
-            <tr>
-                <td colSpan={4} style={{ textAlign: "center", padding: "48px 12px", color: "var(--opq-ink-400)" }}>
-                  No containers registered yet.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-
-        <Pagination
-          page={safePage}
-          pageCount={pageCount}
-          total={total}
-          rangeFrom={rangeFrom}
-          rangeTo={rangeTo}
-          onChange={(p) => setPage(Math.max(1, Math.min(pageCount, p)))} />
-        
-      </div>
-    </>);
-
-};
 
 // ---------------- Resources tab (org-level) ----------------
 
@@ -303,8 +43,9 @@ const REG_RESOURCES = [
 { name: "Claude Opus 4", type: "Models", registeredBy: "Platform", updated: "14 Mar 2026" }];
 
 
-const TYPE_FILTERS_REG = ["All types", "Data Connectors", "Agent Tools", "Models"];
+const TYPE_FILTERS_REG = ["All types", "Containers", "Data Connectors", "Agent Tools", "Models"];
 const TYPE_ICONS_REG = {
+  "Containers": "deployed_code",
   "Data Connectors": "database",
   "Agent Tools": "construction",
   "Models": "network_intel_node"
@@ -333,18 +74,18 @@ const BoundCell = ({ boundTo, onBind }) => {
 // ---------------- Resource access (drill-in) ----------------
 
 const REG_USERS = [
-{ name: "Annemarie Selaya", email: "annemarie@opaque.co", role: "Admin" },
-{ name: "Evan McMillon", email: "evan@opaque.co", role: "Admin" },
-{ name: "Deborah Mercy", email: "deborah@opaque.co", role: "Admin" },
-{ name: "Janice Johnson", email: "janice@opaque.co", role: "Builder" },
-{ name: "Priya Manikandan", email: "priya@opaque.co", role: "Builder" },
-{ name: "Jordan Bellamy", email: "jordan@opaque.co", role: "Builder" },
-{ name: "Maya Ramirez", email: "maya@opaque.co", role: "Builder" },
-{ name: "Noah Westergaard", email: "noah@opaque.co", role: "Builder" },
-{ name: "Devon Oduya", email: "devon@opaque.co", role: "Builder" },
-{ name: "Kiran Patel", email: "kiran@opaque.co", role: "Builder" },
-{ name: "Isabel Cortez", email: "isabel@opaque.co", role: "Builder" },
-{ name: "Ben Tatsumi", email: "ben@opaque.co", role: "Builder" }];
+{ name: "Annemarie Selaya", email: "annemarie@opaque.co", role: "Owner" },
+{ name: "Evan McMillon", email: "evan@opaque.co", role: "Global Admin" },
+{ name: "Deborah Mercy", email: "deborah@opaque.co", role: "Global Admin" },
+{ name: "Janice Johnson", email: "janice@opaque.co", role: "Member" },
+{ name: "Priya Manikandan", email: "priya@opaque.co", role: "Member" },
+{ name: "Jordan Bellamy", email: "jordan@opaque.co", role: "Member" },
+{ name: "Maya Ramirez", email: "maya@opaque.co", role: "Member" },
+{ name: "Noah Westergaard", email: "noah@opaque.co", role: "Member" },
+{ name: "Devon Oduya", email: "devon@opaque.co", role: "Member" },
+{ name: "Kiran Patel", email: "kiran@opaque.co", role: "Member" },
+{ name: "Isabel Cortez", email: "isabel@opaque.co", role: "Member" },
+{ name: "Ben Tatsumi", email: "ben@opaque.co", role: "Member" }];
 
 
 // Seed grants per resource so the surface feels populated. Keyed by name;
@@ -549,9 +290,25 @@ const ResourceDetail = ({ resource, onBack }) => {
 };
 
 
+// Workspace bindings for org resources (multi-workspace mode only). In
+// single-workspace mode every resource is auto-bound to the default workspace,
+// so this column is hidden. Platform/foundation resources bind to all.
+const RESOURCE_WS = {
+  "HR Policies Corpus": ["HR Internal"],
+  "Salesforce CRM":     ["Finance Department", "Sales & Marketing"],
+  "Confluence Wiki":    ["HR Internal", "Sales & Marketing"],
+  "Web Search":         ["Opaque Systems", "Finance Department", "HR Internal", "Sales & Marketing"],
+  "SQL Query Tool":     ["Finance Department"],
+  "Code Interpreter":   [],
+  "Claude Sonnet 4.5":  ["Opaque Systems", "Finance Department", "HR Internal", "Sales & Marketing"],
+  "Claude Haiku 4.5":   ["Opaque Systems", "Finance Department", "HR Internal", "Sales & Marketing"],
+  "Claude Opus 4":      ["Finance Department", "HR Internal"],
+};
+
 const ResourcesTab = ({ onOpen }) => {
   const [page, setPage] = React.useState(1);
   const [sort, setSort] = React.useState({ field: null, dir: "asc" });
+  const multi = opqIsMulti();
   const [query, setQuery] = React.useState("");
   const [typeFilter, setTypeFilter] = React.useState("All types");
   const [registerOpen, setRegisterOpen] = React.useState(false);
@@ -578,7 +335,7 @@ const ResourcesTab = ({ onOpen }) => {
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    let list = REG_RESOURCES.filter((r) => {
+    let list = [...REG_RESOURCES, ...REG_CONTAINERS].filter((r) => {
       if (typeFilter !== "All types" && r.type !== typeFilter) return false;
       if (!q) return true;
       return (
@@ -609,8 +366,9 @@ const ResourcesTab = ({ onOpen }) => {
   return (
     <>
       <p className="reg-tab-helper">
-        Org-level passive resources. Every registered resource is available org-wide to any
-        workflow that references it — there is no workspace binding.
+        {multi
+          ? "Everything registered to your organization — containers, data connectors, agent tools, and models. Containers are registered via the CLI; resources must be bound to the workspaces where workflows can use them."
+          : "Everything registered to your organization — containers, data connectors, agent tools, and models. Containers are registered via the CLI; every resource is available org-wide to any workflow that references it."}
       </p>
       <div className="filter-bar reg-filter-bar">
         <label className="search-field">
@@ -643,7 +401,7 @@ const ResourcesTab = ({ onOpen }) => {
               <SortHeader label="Name" field="name" sort={sort} onSort={onSort} />
               <SortHeader label="Type" field="type" sort={sort} onSort={onSort} />
               <SortHeader label="Registered by" field="registeredBy" sort={sort} onSort={onSort} />
-              <th><span className="th-inner"><span>Access</span></span></th>
+              {multi && <th><span className="th-inner"><span>Workspaces</span></span></th>}
               <SortHeader label="Last updated" field="updated" sort={sort} onSort={onSort} last />
               <th className="actions-col"></th>
             </tr>
@@ -652,16 +410,11 @@ const ResourcesTab = ({ onOpen }) => {
             {rows.map((r) =>
             <tr key={r.name}>
                 <td>
-                  <a className="link" href="#" onClick={(e) => {e.preventDefault();onOpen && onOpen(r);}}>{r.name}</a>
+                  <span className="reg-name">{r.name}</span>
                 </td>
                 <td><RegTypeCell type={r.type} /></td>
                 <td>{r.registeredBy}</td>
-                <td>
-                  <span className="reg-access-count" title={`${accessCountFor(r.name)} user${accessCountFor(r.name) === 1 ? "" : "s"} with access`}>
-                    <Icon name="group" size={16} />
-                    <span>{accessCountFor(r.name)}</span>
-                  </span>
-                </td>
+                {multi && <td><WorkspacePerms workspaces={r.workspaces || RESOURCE_WS[r.name] || []} /></td>}
                 <td className="reg-muted">{r.updated}</td>
                 <td className="actions-col" style={{ position: "relative" }}>
                   <button className="icon-btn" title="More" onClick={(e) => {e.stopPropagation();setOpenMenu(openMenu === r.name ? null : r.name);}}>
@@ -669,9 +422,17 @@ const ResourcesTab = ({ onOpen }) => {
                   </button>
                   {openMenu === r.name &&
                 <div className="reg-row-menu" onClick={(e) => e.stopPropagation()}>
-                      <button onClick={() => {setOpenMenu(null);onOpen && onOpen(r);}}><Icon name="manage_accounts" size={16} /><span>Manage access</span></button>
-                      <button><Icon name="edit" size={16} /><span>Edit configuration</span></button>
-                      <button className="reg-row-menu-danger"><Icon name="delete" size={16} /><span>Unregister</span></button>
+                      {r.type === "Containers" ? (
+                        <>
+                          <button><Icon name="verified_user" size={16} /><span>View attestation</span></button>
+                          <button className="reg-row-menu-danger"><Icon name="delete" size={16} /><span>Unregister</span></button>
+                        </>
+                      ) : (
+                        <>
+                          <button><Icon name="edit" size={16} /><span>Edit configuration</span></button>
+                          <button className="reg-row-menu-danger"><Icon name="delete" size={16} /><span>Unregister</span></button>
+                        </>
+                      )}
                     </div>
                 }
                 </td>
@@ -679,7 +440,7 @@ const ResourcesTab = ({ onOpen }) => {
             )}
             {rows.length === 0 &&
             <tr>
-                <td colSpan={6} style={{ textAlign: "center", padding: "48px 12px", color: "var(--opq-ink-400)" }}>
+                <td colSpan={multi ? 6 : 5} style={{ textAlign: "center", padding: "48px 12px", color: "var(--opq-ink-400)" }}>
                   No resources match your filters.
                 </td>
               </tr>
@@ -718,8 +479,12 @@ const ResourcesTab = ({ onOpen }) => {
 // ---------------- Main Registry component ----------------
 
 const Registry = () => {
-  const [tab, setTab] = React.useState("Resources");
   const [openResource, setOpenResource] = React.useState(null);
+
+  // Members have no access to Registry (brief). Nav hides it; guard here too.
+  if (!opqIsAdmin()) {
+    return <NoAccess title="Registry" area="Registry" />;
+  }
 
   if (openResource) {
     return <ResourceDetail resource={openResource} onBack={() => setOpenResource(null)} />;
@@ -727,15 +492,10 @@ const Registry = () => {
 
   return (
     <>
-      <PageHeader
-        title="Registry"
-        tabs={["Resources", "Containers"]}
-        activeTab={tab}
-        onTab={setTab} />
-      
+      <PageHeader title="Registry" />
       <div className="scroll">
         <div className="page-body reg-page">
-          {tab === "Containers" ? <ContainersTab /> : <ResourcesTab onOpen={setOpenResource} />}
+          <ResourcesTab onOpen={setOpenResource} />
         </div>
       </div>
     </>);

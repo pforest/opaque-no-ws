@@ -1,6 +1,8 @@
-// Org Settings — No-Workspace variant. Tabs: Users / Policies / General.
-// Policies is now a single org-level baseline that all Workflows inherit
-// (no per-workspace inheritance). Users is org-wide role management.
+// Org Settings — single-workspace mode (3.0 UX brief v2 — Default Workspace
+// Model). Reached from the profile footer menu. Sub-nav: Policies / General
+// (no Workspaces tab in single-workspace mode). User management lives on its
+// own standalone surface (?view=users), NOT as a tab here. Only Owners can
+// assign or revoke the Global Admin role.
 
 const ORG_POLICY_CONFIG = {
   "Runtime Integrity Policy": {
@@ -31,18 +33,18 @@ const ORG_POLICY_CONFIG = {
 };
 
 const ORG_USERS = [
-{ name: "Annemarie Selaya", email: "annemarie@opaque.co", role: "Admin", added: "12 Mar 2025", last: "Today" },
-{ name: "Evan McMillon", email: "evan@opaque.co", role: "Admin", added: "18 Mar 2025", last: "Today" },
-{ name: "Deborah Mercy", email: "deborah@opaque.co", role: "Admin", added: "02 Apr 2025", last: "Yesterday" },
-{ name: "Janice Johnson", email: "janice@opaque.co", role: "Builder", added: "09 Apr 2025", last: "2 days ago" },
-{ name: "Priya Manikandan", email: "priya@opaque.co", role: "Builder", added: "14 Apr 2025", last: "Today" },
-{ name: "Jordan Bellamy", email: "jordan@opaque.co", role: "Builder", added: "22 Apr 2025", last: "4 days ago" },
-{ name: "Maya Ramirez", email: "maya@opaque.co", role: "Builder", added: "03 May 2025", last: "1 week ago" },
-{ name: "Noah Westergaard", email: "noah@opaque.co", role: "Builder", added: "12 May 2025", last: "Today" },
-{ name: "Devon Oduya", email: "devon@opaque.co", role: "Builder", added: "28 May 2025", last: "Today" },
-{ name: "Kiran Patel", email: "kiran@opaque.co", role: "Builder", added: "06 Jun 2025", last: "3 days ago" },
-{ name: "Isabel Cortez", email: "isabel@opaque.co", role: "Builder", added: "21 Jun 2025", last: "1 week ago" },
-{ name: "Ben Tatsumi", email: "ben@opaque.co", role: "Builder", added: "14 Jul 2025", last: "Yesterday" }];
+{ name: "Annemarie Selaya", email: "annemarie@opaque.co", role: "Owner", added: "12 Mar 2025", last: "Today" },
+{ name: "Evan McMillon", email: "evan@opaque.co", role: "Global Admin", added: "18 Mar 2025", last: "Today" },
+{ name: "Deborah Mercy", email: "deborah@opaque.co", role: "Global Admin", added: "02 Apr 2025", last: "Yesterday" },
+{ name: "Janice Johnson", email: "janice@opaque.co", role: "Member", added: "09 Apr 2025", last: "2 days ago" },
+{ name: "Priya Manikandan", email: "priya@opaque.co", role: "Member", added: "14 Apr 2025", last: "Today" },
+{ name: "Jordan Bellamy", email: "jordan@opaque.co", role: "Member", added: "22 Apr 2025", last: "4 days ago" },
+{ name: "Maya Ramirez", email: "maya@opaque.co", role: "Member", added: "03 May 2025", last: "1 week ago" },
+{ name: "Noah Westergaard", email: "noah@opaque.co", role: "Member", added: "12 May 2025", last: "Today" },
+{ name: "Devon Oduya", email: "devon@opaque.co", role: "Member", added: "28 May 2025", last: "Today" },
+{ name: "Kiran Patel", email: "kiran@opaque.co", role: "Member", added: "06 Jun 2025", last: "3 days ago" },
+{ name: "Isabel Cortez", email: "isabel@opaque.co", role: "Member", added: "21 Jun 2025", last: "1 week ago" },
+{ name: "Ben Tatsumi", email: "ben@opaque.co", role: "Member", added: "14 Jul 2025", last: "Yesterday" }];
 
 
 // ---------- shared controls ----------
@@ -197,8 +199,6 @@ const UserPermissionsDetail = ({ user, onBack }) => {
 
   const accessCount = perms.filter((p) => p.access).length;
 
-  const roleChipVariant = (role) => (role === "Admin" ? "info" : "neutral");
-
   return (
     <>
       <div className="wd-page-header">
@@ -206,9 +206,7 @@ const UserPermissionsDetail = ({ user, onBack }) => {
           <button className="icon-btn" onClick={onBack} title="Back">
             <Icon name="arrow_back" size={20} />
           </button>
-          <a className="wd-crumb-parent" href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>Org Settings</a>
-          <span className="wd-crumb-sep">/</span>
-          <span className="wd-crumb-mid">Users</span>
+          <a className="wd-crumb-parent" href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>User Management</a>
           <span className="wd-crumb-sep">/</span>
           <span className="wd-crumb-current">{user.name}</span>
         </div>
@@ -223,7 +221,7 @@ const UserPermissionsDetail = ({ user, onBack }) => {
               <div className="ra-meta">
                 <span>{user.email}</span>
                 <span className="ra-dot">·</span>
-                <Chip variant={roleChipVariant(user.role)}>{user.role}</Chip>
+                <Chip variant={opqRoleChip(user.role)}>{user.role}</Chip>
               </div>
             </div>
           </div>
@@ -283,24 +281,56 @@ const UserPermissionsDetail = ({ user, onBack }) => {
 
 // ---------- Users tab ----------
 
+const ROLE_OPTIONS = ["Owner", "Global Admin", "Member"];
+
+// Role cell: a chip for everyone; an editable menu for Owners only
+// (brief: only Owners can assign or revoke the Global Admin role).
+const RoleCell = ({ role, canEdit, open, onToggle, onPick }) => {
+  if (!canEdit) return <Chip variant={opqRoleChip(role)}>{role}</Chip>;
+  return (
+    <span className="os-role-edit" style={{ position: "relative" }} onClick={(e) => e.stopPropagation()}>
+      <button className="os-role-chip-btn" onClick={onToggle} title="Change role">
+        <Chip variant={opqRoleChip(role)}>{role}</Chip>
+        <Icon name="expand_more" size={16} />
+      </button>
+      {open &&
+        <div className="reg-row-menu os-role-menu" onClick={(e) => e.stopPropagation()}>
+          {ROLE_OPTIONS.map((r) => (
+            <button key={r} onClick={() => onPick(r)}>
+              <Icon name={r === role ? "check" : "remove"} size={16} style={{ opacity: r === role ? 1 : 0 }} />
+              <span>{r}</span>
+            </button>
+          ))}
+        </div>
+      }
+    </span>
+  );
+};
+
 const OrgUsersTab = ({ onOpen }) => {
   const [query, setQuery] = React.useState("");
   const [roleFilter, setRoleFilter] = React.useState("All roles");
-  const ROLES = ["All roles", "Admin", "Builder"];
+  const [roles, setRoles] = React.useState(() =>
+    Object.fromEntries(ORG_USERS.map((u) => [u.email, u.role])));
+  const [roleMenu, setRoleMenu] = React.useState(null);
+  const ROLES = ["All roles", "Owner", "Global Admin", "Member"];
+  const ownerView = opqIsOwner();
 
-  const roleChipVariant = (role) => {
-    if (role === "Admin") return "info";
-    return "neutral";
-  };
+  React.useEffect(() => {
+    if (roleMenu === null) return;
+    const onDoc = () => setRoleMenu(null);
+    document.addEventListener("click", onDoc);
+    return () => document.removeEventListener("click", onDoc);
+  }, [roleMenu]);
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     return ORG_USERS.filter((m) => {
-      if (roleFilter !== "All roles" && m.role !== roleFilter) return false;
+      if (roleFilter !== "All roles" && roles[m.email] !== roleFilter) return false;
       if (!q) return true;
       return m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q);
     });
-  }, [query, roleFilter]);
+  }, [query, roleFilter, roles]);
 
   const initials = (name) => name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 
@@ -309,8 +339,11 @@ const OrgUsersTab = ({ onOpen }) => {
       <div className="os-access-note">
         <Icon name="info" size={18} />
         <span>
-          Access is flat and org-wide: every user can view all workflows and resources.
-          Object-level permission grants are not yet available.
+          Manage who belongs to your organization and the role they hold. Resource- and
+          agent-level access is granted per object in Registry and Agent Studio.
+          {ownerView
+            ? " As an Owner, you can assign or revoke the Global Admin role."
+            : " Only Owners can assign or revoke the Global Admin role."}
         </span>
       </div>
 
@@ -343,7 +376,7 @@ const OrgUsersTab = ({ onOpen }) => {
           </thead>
           <tbody>
             {filtered.map((m) =>
-            <tr key={m.email} className="up-row" onClick={() => onOpen && onOpen(m)}>
+            <tr key={m.email} className="up-row" onClick={() => onOpen && onOpen({ ...m, role: roles[m.email] })}>
                 <td>
                   <div className="member-cell">
                     <span className="member-avatar">{initials(m.name)}</span>
@@ -353,11 +386,19 @@ const OrgUsersTab = ({ onOpen }) => {
                     </div>
                   </div>
                 </td>
-                <td><Chip variant={roleChipVariant(m.role)}>{m.role}</Chip></td>
+                <td>
+                  <RoleCell
+                    role={roles[m.email]}
+                    canEdit={ownerView}
+                    open={roleMenu === m.email}
+                    onToggle={(e) => { e.stopPropagation(); setRoleMenu(roleMenu === m.email ? null : m.email); }}
+                    onPick={(r) => { setRoles((rs) => ({ ...rs, [m.email]: r })); setRoleMenu(null); }}
+                  />
+                </td>
                 <td className="cell-muted">{m.added}</td>
                 <td className="cell-muted">{m.last}</td>
                 <td className="actions-col" onClick={(e) => e.stopPropagation()}>
-                  <button className="icon-btn" title="View permissions" onClick={() => onOpen && onOpen(m)}><Icon name="chevron_right" size={20} /></button>
+                  <button className="icon-btn" title="View permissions" onClick={() => onOpen && onOpen({ ...m, role: roles[m.email] })}><Icon name="chevron_right" size={20} /></button>
                 </td>
               </tr>
             )}
@@ -389,6 +430,8 @@ const OSGeneralRow = ({ label, hint, children }) =>
 
 const OrgGeneralTab = () => {
   const [name, setName] = React.useState("Opaque Systems");
+  const [desc, setDesc] = React.useState("Confidential AI platform for regulated enterprises.");
+  const ownerView = opqIsOwner();
   return (
     <div className="os-general">
       <section className="os-gen-section">
@@ -397,10 +440,13 @@ const OrgGeneralTab = () => {
           <OSGeneralRow label="Organization name" hint="Shown across the console and on exported records.">
             <input className="pf-text os-gen-input" value={name} onChange={(e) => setName(e.target.value)} />
           </OSGeneralRow>
+          <OSGeneralRow label="Description" hint="A short summary of your organization.">
+            <textarea className="pf-text os-gen-input" rows={2} value={desc} onChange={(e) => setDesc(e.target.value)} />
+          </OSGeneralRow>
           <OSGeneralRow label="Organization ID" hint="Immutable identifier used by the CLI and API.">
             <code className="os-gen-mono">org-9f4a-2026</code>
           </OSGeneralRow>
-          <OSGeneralRow label="Default cluster" hint="New workflows deploy here unless overridden.">
+          <OSGeneralRow label="Default cluster" hint={ownerView ? "New workflows deploy here unless overridden. Cluster management is Owner-only." : "New workflows deploy here unless overridden."}>
             <button type="button" className="pf-select os-gen-select">
               <span>US-East Prod</span>
               <Icon name="expand_more" size={18} />
@@ -412,39 +458,166 @@ const OrgGeneralTab = () => {
         </div>
       </section>
 
-      <section className="os-gen-section">
-        <h2>Danger zone</h2>
-        <div className="os-gen-card os-gen-danger">
-          <OSGeneralRow label="Delete organization" hint="Permanently removes all workflows, resources, and records. This cannot be undone.">
-            <Button variant="destructive" size="sm">Delete organization</Button>
-          </OSGeneralRow>
-        </div>
-      </section>
+      {ownerView ? (
+        <section className="os-gen-section">
+          <h2>Danger zone</h2>
+          <div className="os-gen-card os-gen-danger">
+            <OSGeneralRow label="Delete organization" hint="Permanently removes all workflows, resources, and records. This cannot be undone.">
+              <Button variant="destructive" size="sm">Delete organization</Button>
+            </OSGeneralRow>
+          </div>
+        </section>
+      ) : (
+        <section className="os-gen-section">
+          <h2>Danger zone</h2>
+          <div className="os-gen-card">
+            <OSGeneralRow label="Delete organization" hint="Only the Owner can delete this organization.">
+              <Button variant="destructive" size="sm" disabled>Delete organization</Button>
+            </OSGeneralRow>
+          </div>
+        </section>
+      )}
     </div>);
 
 };
 
 // ---------- Shell ----------
 
+// ---------- Workspaces tab (multi-workspace mode only) ----------
+// The consolidated home for workspace governance: list of org workspaces (the
+// default workspace carries a badge and cannot be archived), a create CTA, and
+// row-level lifecycle actions. Workspace MEMBERSHIP is managed in User
+// Management; this surface owns workspace lifecycle (create / rename / archive).
+
+const ORG_WORKSPACES_META = {
+  "Opaque Systems":     { cluster: "US-East Prod", members: 24, created: "12 Mar 2025" },
+  "Finance Department": { cluster: "US-East Prod", members: 8,  created: "04 Feb 2026" },
+  "HR Internal":        { cluster: "US-East Prod", members: 6,  created: "18 Feb 2026" },
+  "Sales & Marketing":  { cluster: "EU-West Prod", members: 11, created: "22 Apr 2026" },
+};
+
+const OrgWorkspacesTab = () => {
+  const [openMenu, setOpenMenu] = React.useState(null);
+  React.useEffect(() => {
+    if (openMenu === null) return;
+    const onDoc = () => setOpenMenu(null);
+    document.addEventListener("click", onDoc);
+    return () => document.removeEventListener("click", onDoc);
+  }, [openMenu]);
+
+  return (
+    <div className="members-tab">
+      <div className="os-access-note">
+        <Icon name="info" size={18} />
+        <span>Workspaces isolate teams, use cases, and compliance scopes. The default workspace is auto-provisioned and cannot be archived.</span>
+      </div>
+      <div className="filter-bar">
+        <div className="spacer" />
+        <Button variant="primary" icon="add" size="sm">New workspace</Button>
+      </div>
+      <div className="table-wrap">
+        <table className="opq-table wf-table">
+          <colgroup>
+            <col style={{ width: "40%" }} />
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "14%" }} />
+            <col style={{ width: "18%" }} />
+            <col style={{ width: "56px" }} />
+          </colgroup>
+          <thead>
+            <tr>
+              <th><span className="th-inner"><span>Workspace</span></span></th>
+              <th><span className="th-inner"><span>Cluster</span></span></th>
+              <th><span className="th-inner"><span>Members</span></span></th>
+              <th className="last"><span className="th-inner"><span>Created</span></span></th>
+              <th className="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {OPQ_WORKSPACES.map((w) => {
+              const m = ORG_WORKSPACES_META[w.name] || {};
+              return (
+                <tr key={w.name}>
+                  <td>
+                    <span className="ws-row-name">
+                      <span className="ws-initials">{w.initials}</span>
+                      <span className="reg-name">{w.name}</span>
+                      {w.isDefault && <span className="ws-default-badge">Default</span>}
+                    </span>
+                  </td>
+                  <td className="reg-muted">{m.cluster}</td>
+                  <td>
+                    <span className="reg-access-count"><Icon name="group" size={16} /><span>{m.members}</span></span>
+                  </td>
+                  <td className="reg-muted">{m.created}</td>
+                  <td className="actions-col" style={{ position: "relative" }}>
+                    <button className="icon-btn" title="More" onClick={(e) => { e.stopPropagation(); setOpenMenu(openMenu === w.name ? null : w.name); }}>
+                      <Icon name="more_vert" size={18} />
+                    </button>
+                    {openMenu === w.name &&
+                      <div className="reg-row-menu" onClick={(e) => e.stopPropagation()}>
+                        <button onClick={() => setOpenMenu(null)}><Icon name="edit" size={16} /><span>Edit details</span></button>
+                        {w.isDefault
+                          ? <button disabled><Icon name="lock" size={16} /><span>Default · can’t archive</span></button>
+                          : <button className="reg-row-menu-danger" onClick={() => setOpenMenu(null)}><Icon name="archive" size={16} /><span>Archive</span></button>}
+                      </div>}
+                  </td>
+                </tr>);
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>);
+};
+
+// Two destinations share this file (both gated to Owner/Global Admin):
+//   ?view=users       -> User Management (org-wide role management)
+//   ?view=workspaces  -> Org Settings, Workspaces tab (multi-workspace mode)
+//   default           -> Org Settings (Policies / General; +Workspaces in multi)
 const OrgSettings = () => {
-  const [tab, setTab] = React.useState("Users");
+  const view = (() => {
+    try { return new URLSearchParams(window.location.search).get("view"); }
+    catch (e) { return null; }
+  })();
+  const isUsersView = view === "users";
+  const multi = opqIsMulti();
+  const tabList = multi ? ["Workspaces", "Policies", "General"] : ["Policies", "General"];
+  const initialTab = (multi && view === "workspaces") ? "Workspaces" : "Policies";
+  const [tab, setTab] = React.useState(initialTab);
   const [openUser, setOpenUser] = React.useState(null);
+
+  // Members have no access (brief). Nav hides it; guard here too.
+  if (!opqIsAdmin()) {
+    return <NoAccess title={isUsersView ? "User Management" : "Org Settings"} area={isUsersView ? "User Management" : "Org Settings"} />;
+  }
 
   if (openUser) {
     return <UserPermissionsDetail user={openUser} onBack={() => setOpenUser(null)} />;
+  }
+
+  if (isUsersView) {
+    return (
+      <>
+        <PageHeader title="User Management" />
+        <div className="scroll">
+          <div className="page-body">
+            <OrgUsersTab onOpen={setOpenUser} />
+          </div>
+        </div>
+      </>);
   }
 
   return (
     <>
       <PageHeader
         title="Org Settings"
-        tabs={["Users", "Policies", "General"]}
+        tabs={tabList}
         activeTab={tab}
         onTab={setTab} />
       
       <div className="scroll">
         <div className="page-body">
-          {tab === "Users" && <OrgUsersTab onOpen={setOpenUser} />}
+          {tab === "Workspaces" && <OrgWorkspacesTab />}
           {tab === "Policies" && <OrgPoliciesTab />}
           {tab === "General" && <OrgGeneralTab />}
         </div>

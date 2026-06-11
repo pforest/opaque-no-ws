@@ -235,6 +235,7 @@ const WorkloadAttestationSection = ({ onOpenResult }) => (
 const TrustCenter = () => {
   const [tab, setTab] = React.useState("Overview");
   const [resultPod, setResultPod] = React.useState(null);
+  const multi = opqIsMulti();
 
   if (resultPod) {
     return <AttestationDetail podName={resultPod} onBack={() => setResultPod(null)} />;
@@ -253,6 +254,7 @@ const TrustCenter = () => {
           <div className="tc-filter-row">
             <TCSelect icon="calendar_today" label="Last 7 days" />
             <TCSelect label="All workflows" />
+            {multi && <TCSelect icon="workspaces" label="All workspaces" />}
           </div>
 
           <h2 className="tc-section-title">Policy enforcement</h2>

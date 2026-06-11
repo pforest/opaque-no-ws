@@ -1,7 +1,11 @@
-// Left nav rail — 220px. NO-WORKSPACE VARIANT (3.0 UX brief).
-// Flat single-group sidebar: no workspace picker, no scope groups, no separator.
-// Top: optional cluster picker (multi-cluster orgs). Then a flat nav list.
-// Footer: user menu. Role-aware — Member sees a reduced list.
+// Left nav rail — 220px. 3.0 UX brief v2 — Default Workspace Model.
+// SINGLE-WORKSPACE MODE: the default workspace is invisible — no workspace
+// picker, flat list split by a divider (Agent Studio above, org destinations
+// below). MULTI-WORKSPACE MODE: same flat list — the workspace picker now
+// lives inside the Agent Studio header (WorkspaceSelect in Workflows.jsx),
+// not in the rail. Active workspace from opqGetWorkspace().
+// Footer: user menu. Role-aware: Owner/Global Admin see the full list;
+// Member sees only Agent Studio + Trust Center.
 
 const CLUSTERS = [
   { name: "US-East Prod",    region: "Azure · East US",     dot: "var(--opq-emerald-500)" },
@@ -9,15 +13,6 @@ const CLUSTERS = [
   { name: "US-West Staging", region: "Azure · West US 2",   dot: "var(--opq-warn-500)"    },
 ];
 
-// Role is persisted to localStorage by the Tweaks panel; default Admin.
-const getRole = () => {
-  try { return localStorage.getItem("opq-role") || "admin"; } catch (e) { return "admin"; }
-};
-
-const USERS = {
-  admin:  { name: "Annemarie Selaya", initials: "AS", role: "Admin" },
-  member: { name: "Jordan Bellamy",   initials: "JB", role: "Builder" },
-};
 
 const ClusterMenu = ({ current, onPick, onClose }) => {
   const ref = React.useRef(null);
@@ -55,10 +50,65 @@ const ClusterMenu = ({ current, onPick, onClose }) => {
   );
 };
 
+// Workspace picker dropdown (multi-workspace mode). Search appears at 3+
+// accessible workspaces; "New workspace" routes admins to Org Settings.
+const WorkspaceMenu = ({ current, isAdmin, onPick, onClose }) => {
+  const [q, setQ] = React.useState("");
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const onDocClick = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  const showSearch = OPQ_WORKSPACES.length >= 3;
+  const filtered = OPQ_WORKSPACES.filter(w =>
+    w.name.toLowerCase().includes(q.trim().toLowerCase()));
+
+  return (
+    <div className="ws-menu" ref={ref}>
+      {showSearch && (
+        <label className="ws-menu-search">
+          <input autoFocus placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Icon name="search" size={18} />
+        </label>
+      )}
+      {showSearch && <div className="ws-menu-section-label">Recents</div>}
+      <div className="ws-menu-list">
+        {filtered.map(w => (
+          <button
+            key={w.name}
+            className={`ws-menu-item${w.name === current ? " current" : ""}`}
+            onClick={() => { onPick(w); onClose(); }}>
+            <span className="ws-initials">{w.initials}</span>
+            <span className="ws-menu-name">{w.name}</span>
+            {w.isDefault && <span className="ws-default-badge">Default</span>}
+          </button>
+        ))}
+        {filtered.length === 0 && <div className="ws-menu-empty">No workspaces</div>}
+      </div>
+      {isAdmin && (
+        <React.Fragment>
+          <div className="ws-menu-divider" />
+          <a className="ws-menu-item ws-new" href="OrgSettings.html?view=workspaces">
+            <Icon name="add" size={20} />
+            <span className="ws-menu-name">New workspace</span>
+          </a>
+        </React.Fragment>
+      )}
+    </div>
+  );
+};
+
 const Nav = ({ activeRoute, onNavigate }) => {
-  const role = getRole();
-  const isMember = role === "member";
-  const user = isMember ? USERS.member : USERS.admin;
+  const role = opqGetRole();
+  const isAdmin = opqIsAdmin(role);
+  const user = OPQ_PERSONA[role] || OPQ_PERSONA.member;
 
   const [clOpen, setClOpen] = React.useState(false);
   const [userOpen, setUserOpen] = React.useState(false);
@@ -81,14 +131,15 @@ const Nav = ({ activeRoute, onNavigate }) => {
     };
   }, [userOpen]);
 
-  // Flat, single-group nav. Admin/Owner sees all; Member sees Workflows + Trust.
-  const allItems = [
-    { key: "workflows", icon: "graph_3",       label: "Agent Studio", route: "workflows",    href: "index.html",  roles: ["admin", "member"] },
-    { key: "registry",  icon: "storage",       label: "Registry",     route: "registry",     href: "Registry.html",   roles: ["admin"] },
-    { key: "trust",     icon: "verified_user", label: "Trust Center", route: "trust",        href: "TrustCenter.html",roles: ["admin", "member"] },
-    { key: "org",       icon: "settings",      label: "Org Settings", route: "org-settings", href: "OrgSettings.html",roles: ["admin"] },
+  // Workspace-scoped group (default workspace is implicit/invisible).
+  const studioItems = [
+    { key: "workflows", icon: "graph_3", label: "Agent Studio", route: "workflows", href: "index.html" },
   ];
-  const items = allItems.filter(i => i.roles.includes(role));
+  // Org-scoped group below the divider. Members see only Trust Center.
+  const orgItems = [
+    { key: "registry", icon: "storage",       label: "Registry",     route: "registry",     href: "Registry.html",    show: isAdmin },
+    { key: "trust",    icon: "verified_user", label: "Trust Center", route: "trust",        href: "TrustCenter.html", show: true },
+  ].filter(i => i.show);
 
   const isActive = (item) => activeRoute === item.route;
 
@@ -121,9 +172,12 @@ const Nav = ({ activeRoute, onNavigate }) => {
       </div>
 
       {/* Cluster picker hidden — single-cluster org (multi-cluster orgs only) */}
+      {/* Workspace picker moved into Agent Studio header (see WorkspaceSelect). */}
 
       <div style={{ height: 8 }} />
-      <div className="nav-section">{items.map(row)}</div>
+      <div className="nav-section">{studioItems.map(row)}</div>
+      <div className="nav-divider" />
+      <div className="nav-section">{orgItems.map(row)}</div>
 
       <div className="nav-spacer" />
 
@@ -132,8 +186,20 @@ const Nav = ({ activeRoute, onNavigate }) => {
           <div className="user-menu">
             <button className="user-menu-item">
               <Icon name="person" size={20} />
-              {!collapsed && <span>Profile Settings</span>}
+              {!collapsed && <span>My Profile</span>}
             </button>
+            {isAdmin && (
+              <a className="user-menu-item" href="OrgSettings.html?view=users">
+                <Icon name="group" size={20} />
+                {!collapsed && <span>User Management</span>}
+              </a>
+            )}
+            {isAdmin && (
+              <a className="user-menu-item" href="OrgSettings.html">
+                <Icon name="settings" size={20} />
+                {!collapsed && <span>Org Settings</span>}
+              </a>
+            )}
             <button className="user-menu-item">
               <Icon name="logout" size={20} />
               {!collapsed && <span>Logout</span>}
@@ -158,4 +224,4 @@ const Nav = ({ activeRoute, onNavigate }) => {
   );
 };
 
-Object.assign(window, { Nav, ClusterMenu });
+Object.assign(window, { Nav, ClusterMenu, WorkspaceMenu });

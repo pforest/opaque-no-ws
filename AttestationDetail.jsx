@@ -247,8 +247,12 @@ const AttestationDetail = ({ podName, onBack }) => {
               <span className="wd-meta-val">
                 {data.workload}
                 <span className="wd-meta-dot">·</span>
-                {data.workspace}
-                <span className="wd-meta-dot">·</span>
+                {opqIsMulti() && data.workspace && (
+                  <>
+                    {data.workspace}
+                    <span className="wd-meta-dot">·</span>
+                  </>
+                )}
                 <span className="wd-meta-mode">{data.mode}</span>
               </span>
             </div>

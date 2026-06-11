@@ -1,6 +1,8 @@
-// Workflows — org-wide home surface (No-Workspace variant).
-// Status is Draft / Deployed; a Trust status badge reflects latest attestation.
-// Members see only workflows they have access to; Admins/Owners see all.
+// Agent Studio — home surface (3.0 UX brief v2, single-workspace mode).
+// Two tabs: Workflows (default) + Resources. The default workspace is implicit,
+// so there is no workspace context indicator anywhere on this surface.
+// Workflow status is Draft / Deployed; a Trust badge reflects latest attestation.
+// Members see only workflows they have access to; Owners/Global Admins see all.
 
 const WORKFLOWS = [
   { name: "Employee HR Assist",    createdBy: "Annemarie Selaya",  status: "Deployed", trust: "Verified", updated: "14 Apr 2026", member: true },
@@ -17,18 +19,18 @@ const ROWS_PER_PAGE = 10;
 // surfaced as an Access count in the list and managed in a drill-in detail.
 
 const WF_USERS = [
-  { name: "Annemarie Selaya",   email: "annemarie@opaque.co", role: "Admin" },
-  { name: "Evan McMillon",      email: "evan@opaque.co",      role: "Admin" },
-  { name: "Deborah Mercy",      email: "deborah@opaque.co",   role: "Admin" },
-  { name: "Janice Johnson",     email: "janice@opaque.co",    role: "Builder" },
-  { name: "Priya Manikandan",   email: "priya@opaque.co",     role: "Builder" },
-  { name: "Jordan Bellamy",     email: "jordan@opaque.co",    role: "Builder" },
-  { name: "Maya Ramirez",       email: "maya@opaque.co",      role: "Builder" },
-  { name: "Noah Westergaard",   email: "noah@opaque.co",      role: "Builder" },
-  { name: "Devon Oduya",        email: "devon@opaque.co",     role: "Builder" },
-  { name: "Kiran Patel",        email: "kiran@opaque.co",     role: "Builder" },
-  { name: "Isabel Cortez",      email: "isabel@opaque.co",    role: "Builder" },
-  { name: "Ben Tatsumi",        email: "ben@opaque.co",       role: "Builder" },
+  { name: "Annemarie Selaya",   email: "annemarie@opaque.co", role: "Owner" },
+  { name: "Evan McMillon",      email: "evan@opaque.co",      role: "Global Admin" },
+  { name: "Deborah Mercy",      email: "deborah@opaque.co",   role: "Global Admin" },
+  { name: "Janice Johnson",     email: "janice@opaque.co",    role: "Member" },
+  { name: "Priya Manikandan",   email: "priya@opaque.co",     role: "Member" },
+  { name: "Jordan Bellamy",     email: "jordan@opaque.co",    role: "Member" },
+  { name: "Maya Ramirez",       email: "maya@opaque.co",      role: "Member" },
+  { name: "Noah Westergaard",   email: "noah@opaque.co",      role: "Member" },
+  { name: "Devon Oduya",        email: "devon@opaque.co",     role: "Member" },
+  { name: "Kiran Patel",        email: "kiran@opaque.co",     role: "Member" },
+  { name: "Isabel Cortez",      email: "isabel@opaque.co",    role: "Member" },
+  { name: "Ben Tatsumi",        email: "ben@opaque.co",       role: "Member" },
 ];
 
 // Seed grants per agent so the surface feels populated. Keyed by name;
@@ -52,6 +54,43 @@ const WF_AGENT_GRANTS = {
     { email: "jordan@opaque.co",    access: true },
   ],
 };
+
+// ---------------- Studio Resources tab (consumption catalog) ----------------
+// In single-workspace mode every org-registered resource is auto-bound to the
+// default workspace, so this surface shows the full org pool. There is no
+// workspace-binding UI. Resources are registered in Registry; Global Admins
+// and Owners can also register contextually here (save back to registry).
+const STUDIO_RESOURCES = [
+  { name: "HR Policies Corpus", type: "Data Connectors", source: "PostgreSQL",          updated: "18 Apr 2026" },
+  { name: "Salesforce CRM",     type: "Data Connectors", source: "Salesforce",          updated: "12 Apr 2026" },
+  { name: "Confluence Wiki",    type: "Data Connectors", source: "Atlassian",           updated: "09 Apr 2026" },
+  { name: "Web Search",         type: "Agent Tools",     source: "Brave",               updated: "11 Apr 2026" },
+  { name: "SQL Query Tool",     type: "Agent Tools",     source: "Finance Ledger",      updated: "07 Apr 2026" },
+  { name: "Code Interpreter",   type: "Agent Tools",     source: "Sandboxed runtime",   updated: "26 Mar 2026" },
+  { name: "Claude Sonnet 4.5",  type: "Models",          source: "Anthropic",           updated: "14 Apr 2026" },
+  { name: "Claude Haiku 4.5",   type: "Models",          source: "Anthropic",           updated: "04 Apr 2026" },
+  { name: "Claude Opus 4",      type: "Models",          source: "Anthropic",           updated: "14 Mar 2026" },
+];
+
+// Object-level access grants (mirror Registry/Org Settings). A user can use a
+// resource as a node only if granted. Members see only what they can use.
+const STUDIO_RES_GRANTS = {
+  "HR Policies Corpus": ["annemarie@opaque.co", "priya@opaque.co", "jordan@opaque.co"],
+  "Salesforce CRM":     ["deborah@opaque.co", "maya@opaque.co"],
+  "Claude Sonnet 4.5":  ["annemarie@opaque.co", "evan@opaque.co", "jordan@opaque.co", "maya@opaque.co"],
+};
+// Platform-provided resources every member can use without an explicit grant.
+const STUDIO_RES_OPEN = new Set(["Web Search", "Code Interpreter", "Claude Haiku 4.5"]);
+
+const studioResourcesFor = (email) =>
+  STUDIO_RESOURCES.filter((r) =>
+    STUDIO_RES_OPEN.has(r.name) || (STUDIO_RES_GRANTS[r.name] || []).includes(email));
+
+const TYPE_FILTERS_STUDIO = ["All types", "Data Connectors", "Agent Tools", "Models"];
+const TYPE_ICONS_STUDIO = { "Data Connectors": "database", "Agent Tools": "construction", "Models": "network_intel_node" };
+
+// Owners + Global Admins, surfaced in the Member empty state with mailto links.
+const wfAdminDirectory = () => WF_USERS.filter((u) => u.role === "Owner" || u.role === "Global Admin");
 
 const wfInitialsOf = (name) => name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 const wfUserByEmail = (email) => WF_USERS.find((u) => u.email === email);
@@ -285,12 +324,8 @@ const Pagination = ({ page, pageCount, total, rangeFrom, rangeTo, onChange }) =>
 // Legacy export kept for any other importer.
 const StatusCell = WFStatusCell;
 
-const getRoleWF = () => {
-  try { return localStorage.getItem("opq-role") || "admin"; } catch (e) { return "admin"; }
-};
-
-const WorkflowsList = () => {
-  const isMember = getRoleWF() === "member";
+// ---------------- Workflows tab (body only; shell comes from AgentStudioHome) ----------------
+const WorkflowsTab = ({ isMember, isAdmin, onOpenAgent }) => {
   const scoped = React.useMemo(
     () => (isMember ? WORKFLOWS.filter(w => w.member) : WORKFLOWS),
     [isMember]
@@ -299,7 +334,6 @@ const WorkflowsList = () => {
   const [page, setPage] = React.useState(1);
   const [sort, setSort] = React.useState({ field: null, dir: "asc" });
   const [query, setQuery] = React.useState("");
-  const [openAgent, setOpenAgent] = React.useState(null);
   const [openMenu, setOpenMenu] = React.useState(null);
 
   React.useEffect(() => {
@@ -339,13 +373,12 @@ const WorkflowsList = () => {
   }, [query, sort, scoped]);
 
   const counts = React.useMemo(() => {
-    let deployed = 0, draft = 0, attention = 0;
+    let deployed = 0, draft = 0;
     scoped.forEach(w => {
       if (w.status === "Deployed") deployed++;
       if (w.status === "Draft") draft++;
-      if (w.trust === "Failed" || w.trust === "At risk") attention++;
     });
-    return { deployed, draft, attention };
+    return { deployed, draft };
   }, [scoped]);
 
   const total = filtered.length;
@@ -356,141 +389,306 @@ const WorkflowsList = () => {
   const rangeFrom = total === 0 ? 0 : startIdx + 1;
   const rangeTo = Math.min(startIdx + ROWS_PER_PAGE, total);
 
-  // Drill-in: per-agent access management.
-  if (openAgent) {
-    return <AgentAccessDetail agent={openAgent} onBack={() => setOpenAgent(null)} />;
-  }
-
-  // First-run empty state (no accessible workflows at all).
+  // First-run empty state (no accessible workflows). Members get the admin
+  // directory with mailto links (brief: surface Owners + Global Admins).
   if (scoped.length === 0) {
     return (
-      <>
-        <div className="page-header">
-          <div className="title-row"><h1>Agent Studio</h1></div>
+      <div className="wf-empty">
+        <div className="wf-empty-icon"><Icon name="graph_3" size={32} /></div>
+        <div className="wf-empty-title">No workflows yet</div>
+        <div className="wf-empty-body">
+          {isMember
+            ? "Build your first workflow using the built-in nodes, or ask a Global Admin to grant access to registered resources."
+            : "Build your first workflow using the built-in nodes, or register your own resources in Registry."}
         </div>
-        <div className="scroll">
-          <div className="page-body">
-            <div className="wf-empty">
-              <div className="wf-empty-icon"><Icon name="graph_3" size={32} /></div>
-              <div className="wf-empty-title">
-                {isMember ? "You don't have access to any workflows yet" : "No workflows yet"}
-              </div>
-              <div className="wf-empty-body">
-                {isMember
-                  ? "Ask an Owner or Admin to grant you access, or create your first workflow once resources are registered."
-                  : "Create your first workflow, or ask a Builder to get started. Register resources in Registry so Builders have nodes to work with."}
-              </div>
-              <Button variant="primary" size="sm">New agent</Button>
-            </div>
+        <Button variant="primary" size="sm">New agent</Button>
+        {isMember && (
+          <div className="wf-admin-dir">
+            <div className="wf-admin-dir-label">Your organization’s admins</div>
+            {wfAdminDirectory().map((a) => (
+              <a key={a.email} className="wf-admin-row" href={`mailto:${a.email}`}>
+                <span className="member-avatar">{wfInitialsOf(a.name)}</span>
+                <span className="wf-admin-id">
+                  <span className="member-name">{a.name}</span>
+                  <span className="member-email">{a.email}</span>
+                </span>
+                <Chip variant={opqRoleChip(a.role)}>{a.role}</Chip>
+              </a>
+            ))}
           </div>
-        </div>
-      </>
+        )}
+      </div>
     );
   }
 
   return (
     <>
-      <div className="page-header">
-        <div className="title-row">
-          <h1>Agent Studio</h1>
+      <div className="metric-row" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
+        <div className="card metric-tile">
+          <div className="val">{counts.deployed}</div>
+          <div className="lbl">
+            <span className="status-dot" style={{ background: "var(--opq-emerald-400)" }} />
+            <span>Deployed</span>
+          </div>
+        </div>
+        <div className="card metric-tile">
+          <div className="val">{counts.draft}</div>
+          <div className="lbl">
+            <span className="status-dot" style={{ background: "var(--opq-ink-400)" }} />
+            <span>Draft</span>
+          </div>
         </div>
       </div>
+
+      <div className="filter-bar">
+        <label className="search-field">
+          <input
+            placeholder="Search..."
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+          />
+          <Icon name="search" size={18} />
+        </label>
+        <div className="spacer" />
+        <Button variant="primary" icon={null} size="sm">New agent</Button>
+      </div>
+
+      <div className="table-wrap">
+        <table className="opq-table wf-table">
+          <thead>
+            <tr>
+              <SortHeader label="Name"         field="name"      sort={sort} onSort={onSort} />
+              <SortHeader label="Status"       field="status"    sort={sort} onSort={onSort} />
+              <SortHeader label="Created by"   field="createdBy" sort={sort} onSort={onSort} />
+              <th><span className="th-inner"><span>Access</span></span></th>
+              <SortHeader label="Last updated" field="updated"   sort={sort} onSort={onSort} last />
+              <th className="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((w) => (
+              <tr key={w.name}>
+                <td>
+                  <a className="link" href="AgentStudio.html">{w.name}</a>
+                </td>
+                <td><WFStatusCell status={w.status} /></td>
+                <td>{w.createdBy}</td>
+                <td>
+                  <span className="reg-access-count" title={`${wfAccessCountFor(w.name)} user${wfAccessCountFor(w.name) === 1 ? "" : "s"} with access`}>
+                    <Icon name="group" size={16} />
+                    <span>{wfAccessCountFor(w.name)}</span>
+                  </span>
+                </td>
+                <td>{w.updated}</td>
+                <td className="actions-col" style={{ position: "relative" }}>
+                  <button className="icon-btn" title="More" onClick={(e) => { e.stopPropagation(); setOpenMenu(openMenu === w.name ? null : w.name); }}>
+                    <Icon name="more_vert" size={18} />
+                  </button>
+                  {openMenu === w.name &&
+                    <div className="reg-row-menu" onClick={(e) => e.stopPropagation()}>
+                      <button onClick={() => setOpenMenu(null)}><Icon name="edit" size={16} /><span>Edit workflow</span></button>
+                      <button className="reg-row-menu-danger" onClick={() => setOpenMenu(null)}><Icon name="delete" size={16} /><span>Delete</span></button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            ))}
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: "48px 12px", color: "var(--opq-ink-400)" }}>
+                  No workflows match your search.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+
+        <Pagination
+          page={safePage}
+          pageCount={pageCount}
+          total={total}
+          rangeFrom={rangeFrom}
+          rangeTo={rangeTo}
+          onChange={(p) => setPage(Math.max(1, Math.min(pageCount, p)))}
+        />
+      </div>
+    </>
+  );
+};
+
+// ---------------- Resources tab (consumption catalog) ----------------
+const StudioTypeCell = ({ type }) => (
+  <span className="type-cell">
+    <Icon name={TYPE_ICONS_STUDIO[type] || "category"} size={18} />
+    <span>{type}</span>
+  </span>
+);
+
+const StudioResourcesTab = ({ isMember, isAdmin }) => {
+  const [query, setQuery] = React.useState("");
+  const [typeFilter, setTypeFilter] = React.useState("All types");
+  const [registerOpen, setRegisterOpen] = React.useState(false);
+  const [toast, setToast] = React.useState(null);
+
+  React.useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const memberUser = WF_USERS.find((u) => u.name === OPQ_PERSONA.member.name);
+  const base = isAdmin ? STUDIO_RESOURCES : studioResourcesFor(memberUser ? memberUser.email : "");
+
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return base.filter((r) => {
+      if (typeFilter !== "All types" && r.type !== typeFilter) return false;
+      if (!q) return true;
+      return r.name.toLowerCase().includes(q) || r.source.toLowerCase().includes(q) || r.type.toLowerCase().includes(q);
+    });
+  }, [query, typeFilter, base]);
+
+  return (
+    <>
+      <p className="reg-tab-helper">
+        {isAdmin
+          ? (opqIsMulti()
+              ? `Resources bound to ${opqGetWorkspace()} are available here as nodes. Register a new resource to add it to this workspace — it’s also saved back to Registry. Bind existing resources from Registry.`
+              : "Every resource registered to your organization is available here as a node. Register a new resource to add it to the pool — it’s saved back to Registry and immediately usable in Studio.")
+          : "Resources you can use as nodes in your agents. Ask a Global Admin if you need access to something that isn’t listed."}
+      </p>
+
+      <div className="filter-bar reg-filter-bar">
+        <label className="search-field">
+          <input placeholder="Search resources..." value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Icon name="search" size={18} />
+        </label>
+        <div className="type-filters">
+          {TYPE_FILTERS_STUDIO.map((t) => (
+            <button key={t} className={`type-filter${typeFilter === t ? " active" : ""}`} onClick={() => setTypeFilter(t)}>
+              {t}
+            </button>
+          ))}
+        </div>
+        <div className="spacer" />
+        {isAdmin && <Button variant="primary" icon="add" size="sm" onClick={() => setRegisterOpen(true)}>Register resource</Button>}
+      </div>
+
+      <div className="table-wrap">
+        <table className="opq-table wf-table reg-table">
+          <thead>
+            <tr>
+              <th><span className="th-inner"><span>Name</span></span></th>
+              <th><span className="th-inner"><span>Type</span></span></th>
+              <th><span className="th-inner"><span>Source</span></span></th>
+              <th className="last"><span className="th-inner"><span>Last updated</span></span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r) => (
+              <tr key={r.name}>
+                <td><span className="reg-name">{r.name}</span></td>
+                <td><StudioTypeCell type={r.type} /></td>
+                <td>{r.source}</td>
+                <td className="reg-muted">{r.updated}</td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={4} style={{ textAlign: "center", padding: "48px 12px", color: "var(--opq-ink-400)" }}>
+                  {isMember ? "You don’t have access to any resources yet." : "No resources match your filters."}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {isAdmin && typeof RegisterResourceModal !== "undefined" &&
+        <RegisterResourceModal
+          open={registerOpen}
+          onClose={() => setRegisterOpen(false)}
+          onComplete={(r) => setToast(r)}
+        />
+      }
+      {toast &&
+        <div className="rr-toast">
+          <span className="rr-toast-dot" />
+          <span><strong>{toast.name}</strong> registered as {toast.type} · {opqIsMulti() ? `bound to ${opqGetWorkspace()}` : "available org-wide"}</span>
+          <button className="rr-toast-close" onClick={() => setToast(null)}>
+            <Icon name="close" size={16} />
+          </button>
+        </div>
+      }
+    </>
+  );
+};
+
+// ---------------- Agent Studio home (tabs: Workflows + Resources) ----------------
+
+// Workspace select — lives in the Agent Studio page header (multi-workspace
+// mode). Replaces the old left-nav workspace picker. Clicking "HR Internal"
+// opens the shared WorkspaceMenu dropdown.
+const WorkspaceSelect = () => {
+  const [open, setOpen] = React.useState(false);
+  const isAdmin = opqIsAdmin(opqGetRole());
+  const activeWs = OPQ_WORKSPACES.find((w) => w.name === opqGetWorkspace()) || OPQ_WORKSPACES[2];
+  return (
+    <div className="hdr-ws">
+      <button
+        className={`hdr-ws-trigger${open ? " open" : ""}`}
+        onClick={() => setOpen((o) => !o)}
+        title="Switch workspace"
+      >
+        <span className="ws-initials">{activeWs.initials}</span>
+        <span className="hdr-ws-name">{activeWs.name}</span>
+        <Icon name="unfold_more" size={16} />
+      </button>
+      {open && (
+        <WorkspaceMenu
+          current={activeWs.name}
+          isAdmin={isAdmin}
+          onPick={(w) => { opqSetWorkspace(w.name); location.reload(); }}
+          onClose={() => setOpen(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+const AgentStudioHome = () => {
+  const role = opqGetRole();
+  const isMember = role === "member";
+  const isAdmin = opqIsAdmin(role);
+  const [tab, setTab] = React.useState("Workflows");
+  const [openAgent, setOpenAgent] = React.useState(null);
+
+  // Drill-in: per-agent access management replaces the whole shell.
+  if (openAgent) {
+    return <AgentAccessDetail agent={openAgent} onBack={() => setOpenAgent(null)} />;
+  }
+
+  return (
+    <>
+      <PageHeader
+        title="Agent Studio"
+        chip={opqIsMulti() ? <WorkspaceSelect /> : undefined}
+        tabs={["Workflows", "Resources"]}
+        activeTab={tab}
+        onTab={setTab}
+      />
       <div className="scroll">
-        <div className="page-body">
-          <div className="metric-row" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
-            <div className="card metric-tile">
-              <div className="val">{counts.deployed}</div>
-              <div className="lbl">
-                <span className="status-dot" style={{ background: "var(--opq-emerald-400)" }} />
-                <span>Deployed</span>
-              </div>
-            </div>
-            <div className="card metric-tile">
-              <div className="val">{counts.draft}</div>
-              <div className="lbl">
-                <span className="status-dot" style={{ background: "var(--opq-ink-400)" }} />
-                <span>Draft</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="filter-bar">
-            <label className="search-field">
-              <input
-                placeholder="Search..."
-                value={query}
-                onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-              />
-              <Icon name="search" size={18} />
-            </label>
-            <div className="spacer" />
-            <Button variant="primary" icon={null} size="sm">New agent</Button>
-          </div>
-
-          <div className="table-wrap">
-            <table className="opq-table wf-table">
-              <thead>
-                <tr>
-                  <SortHeader label="Name"         field="name"      sort={sort} onSort={onSort} />
-                  <SortHeader label="Status"       field="status"    sort={sort} onSort={onSort} />
-                  <SortHeader label="Created by"   field="createdBy" sort={sort} onSort={onSort} />
-                  <th><span className="th-inner"><span>Access</span></span></th>
-                  <SortHeader label="Last updated" field="updated"   sort={sort} onSort={onSort} last />
-                  <th className="actions-col"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((w) => (
-                  <tr key={w.name}>
-                    <td>
-                      <a className="link" href="AgentStudio.html">{w.name}</a>
-                    </td>
-                    <td><WFStatusCell status={w.status} /></td>
-                    <td>{w.createdBy}</td>
-                    <td>
-                      <span className="reg-access-count" title={`${wfAccessCountFor(w.name)} user${wfAccessCountFor(w.name) === 1 ? "" : "s"} with access`}>
-                        <Icon name="group" size={16} />
-                        <span>{wfAccessCountFor(w.name)}</span>
-                      </span>
-                    </td>
-                    <td>{w.updated}</td>
-                    <td className="actions-col" style={{ position: "relative" }}>
-                      <button className="icon-btn" title="More" onClick={(e) => { e.stopPropagation(); setOpenMenu(openMenu === w.name ? null : w.name); }}>
-                        <Icon name="more_vert" size={18} />
-                      </button>
-                      {openMenu === w.name &&
-                        <div className="reg-row-menu" onClick={(e) => e.stopPropagation()}>
-                          <button onClick={() => { setOpenMenu(null); setOpenAgent(w); }}><Icon name="manage_accounts" size={16} /><span>Manage access</span></button>
-                          <button onClick={() => setOpenMenu(null)}><Icon name="edit" size={16} /><span>Edit agent</span></button>
-                          <button className="reg-row-menu-danger" onClick={() => setOpenMenu(null)}><Icon name="delete" size={16} /><span>Delete</span></button>
-                        </div>
-                      }
-                    </td>
-                  </tr>
-                ))}
-                {rows.length === 0 && (
-                  <tr>
-                    <td colSpan={6} style={{ textAlign: "center", padding: "48px 12px", color: "var(--opq-ink-400)" }}>
-                      No workflows match your search.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-
-            <Pagination
-              page={safePage}
-              pageCount={pageCount}
-              total={total}
-              rangeFrom={rangeFrom}
-              rangeTo={rangeTo}
-              onChange={(p) => setPage(Math.max(1, Math.min(pageCount, p)))}
-            />
-          </div>
+        <div className={tab === "Resources" ? "page-body reg-page" : "page-body"}>
+          {tab === "Workflows"
+            ? <WorkflowsTab isMember={isMember} isAdmin={isAdmin} onOpenAgent={setOpenAgent} />
+            : <StudioResourcesTab isMember={isMember} isAdmin={isAdmin} />}
         </div>
       </div>
     </>
   );
 };
 
-Object.assign(window, { WorkflowsList, SortHeader, Pagination, StatusCell });
+// Back-compat alias so older mounts still resolve.
+const WorkflowsList = AgentStudioHome;
+
+Object.assign(window, { AgentStudioHome, WorkflowsTab, StudioResourcesTab, WorkflowsList, SortHeader, Pagination, StatusCell });

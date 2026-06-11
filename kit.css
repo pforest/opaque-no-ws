@@ -66,6 +66,26 @@ button { font-family: inherit; cursor: pointer; }
 .ws-pill.placeholder { color: var(--opq-ink-300); }
 .ws-pill.placeholder .ws-name { color: var(--opq-ink-300); max-width: 150px; }
 
+/* Header workspace select — Agent Studio (replaces left-nav picker) */
+.hdr-ws { position: relative; display: inline-flex; }
+.hdr-ws-trigger {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 30px; padding: 0 8px 0 7px;
+  border: 1px solid var(--opq-ink-700); border-radius: 6px;
+  background: transparent; color: var(--opq-ink-100);
+  font-family: inherit; font-size: 13px; cursor: pointer;
+}
+.hdr-ws-trigger:hover,
+.hdr-ws-trigger.open { background: var(--opq-ink-850); border-color: var(--opq-ink-600); }
+.hdr-ws-trigger .ws-initials {
+  width: 20px; height: 20px; border-radius: 4px; background: var(--opq-emerald-500);
+  color: var(--opq-ink-900); font-size: 11px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; flex: 0 0 20px;
+}
+.hdr-ws-trigger .hdr-ws-name { white-space: nowrap; }
+.hdr-ws-trigger .material-symbols-outlined { color: var(--opq-ink-400); font-size: 16px; }
+.hdr-ws .ws-menu { left: 0; top: 38px; }
+
 /* --------------- Workspace picker menu --------------- */
 .ws-menu {
   position: absolute; left: 8px; top: 48px;
@@ -107,6 +127,21 @@ button { font-family: inherit; cursor: pointer; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
 }
 .ws-menu-divider { height: 1px; background: var(--opq-ink-800); margin: 8px 4px; }
+.ws-menu-item.current { background: var(--opq-ink-850); }
+.ws-menu-item.current .ws-initials { outline: 2px solid var(--opq-emerald-500); outline-offset: 1px; }
+.ws-menu-item.ws-new { color: var(--opq-emerald-400); text-decoration: none; }
+.ws-menu-item.ws-new .material-symbols-outlined { color: var(--opq-emerald-400); }
+.ws-default-badge {
+  margin-left: auto; flex: 0 0 auto;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--opq-ink-300); background: var(--opq-ink-800);
+  padding: 2px 6px; border-radius: 999px;
+}
+.ws-row-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.ws-row-name .reg-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ws-row-name .ws-default-badge { margin-left: 4px; }
+.reg-row-menu button:disabled { opacity: 0.45; cursor: default; }
+.reg-row-menu button:disabled:hover { background: transparent; }
 .ws-menu-empty {
   font-size: 13px; color: var(--opq-ink-400);
   padding: 12px 8px; text-align: center;
@@ -161,6 +196,7 @@ button { font-family: inherit; cursor: pointer; }
   border: none; background: transparent; border-radius: 4px;
   color: white; font-family: inherit; font-size: 15px;
   text-align: left; cursor: pointer; width: 100%;
+  text-decoration: none; box-sizing: border-box;
 }
 .user-menu-item:hover { background: var(--opq-ink-850); }
 .user-menu-item .material-symbols-outlined { color: var(--opq-ink-200); font-size: 20px; }
@@ -2065,6 +2101,25 @@ textarea.rr-input { height: auto; padding: 8px 12px; resize: vertical; min-heigh
 .wf-empty-title { font-size: 18px; font-weight: 500; color: white; }
 .wf-empty-body { font-size: 14px; color: var(--opq-ink-300); max-width: 460px; line-height: 1.55; margin-bottom: 8px; }
 
+/* Member empty state — org admin directory with mailto links */
+.wf-admin-dir {
+  width: 100%; max-width: 420px; margin-top: 8px;
+  display: flex; flex-direction: column; gap: 6px;
+  text-align: left;
+}
+.wf-admin-dir-label {
+  font-size: 12px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--opq-ink-400); margin-bottom: 2px;
+}
+.wf-admin-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border: 1px solid var(--opq-ink-800); border-radius: 6px;
+  background: var(--opq-ink-900); text-decoration: none;
+}
+.wf-admin-row:hover { background: var(--opq-ink-850); border-color: var(--opq-ink-700); }
+.wf-admin-id { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.wf-admin-row .member-email { color: var(--opq-info-400); }
+
 
 /* ============================================================
    Org Settings — General tab + access note
@@ -2078,6 +2133,16 @@ textarea.rr-input { height: auto; padding: 8px 12px; resize: vertical; min-heigh
   font-size: 13px; color: var(--opq-ink-200); line-height: 1.5;
 }
 .os-access-note .material-symbols-outlined { color: var(--opq-info-400); flex-shrink: 0; margin-top: 1px; }
+
+/* Owner-only inline role editor (Users tab) */
+.os-role-chip-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: transparent; border: none; padding: 0; cursor: pointer; font-family: inherit;
+}
+.os-role-chip-btn .material-symbols-outlined { color: var(--opq-ink-400); }
+.os-role-chip-btn:hover .material-symbols-outlined { color: var(--opq-ink-200); }
+.os-role-menu { right: auto; left: 0; top: 30px; min-width: 168px; }
+.os-role-menu .material-symbols-outlined { color: var(--accent-primary); }
 
 .os-general { display: flex; flex-direction: column; gap: 32px; max-width: 820px; }
 .os-gen-section > h2 { font-size: 18px; font-weight: 500; color: white; margin: 0 0 12px; }

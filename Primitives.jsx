@@ -59,12 +59,87 @@ const MetricCard = ({ label, value, delta, deltaTone = "muted" }) => (
   </div>
 );
 
+// ---- Role model (3.0): Owner / Global Admin / Member -------------------
+// Single shared source of truth so every page + the nav agree. Stored in
+// localStorage under "opq-role" as: "owner" | "global-admin" | "member".
+const OPQ_ROLE_LABEL = { "owner": "Owner", "global-admin": "Global Admin", "member": "Member" };
+const OPQ_PERSONA = {
+  "owner":        { name: "Annemarie Selaya", initials: "AS", role: "Owner" },
+  "global-admin": { name: "Evan McMillon",    initials: "EM", role: "Global Admin" },
+  "member":       { name: "Jordan Bellamy",   initials: "JB", role: "Member" },
+};
+function opqGetRole() {
+  try {
+    const r = localStorage.getItem("opq-role");
+    if (!r) return "member";
+    if (r === "admin") return "global-admin";   // migrate legacy value
+    if (r === "builder") return "member";        // migrate legacy value
+    return r;
+  } catch (e) { return "member"; }
+}
+function opqIsAdmin(role) {
+  const r = role || opqGetRole();
+  return r === "owner" || r === "global-admin";
+}
+function opqIsOwner(role) { return (role || opqGetRole()) === "owner"; }
+
+// ---- Workspace mode (3.0 default-workspace model) -------------------------
+// Single-workspace mode: the default workspace is invisible. Multi-workspace
+// mode: a second workspace exists, so the picker + workspace UI surface.
+// Stored in localStorage under "opq-mode" as: "single" | "multi".
+// Active workspace stored under "opq-workspace".
+const OPQ_WORKSPACES = [
+  { initials: "OS", name: "Opaque Systems",     isDefault: true },
+  { initials: "FI", name: "Finance Department" },
+  { initials: "HR", name: "HR Internal"        },
+  { initials: "SM", name: "Sales & Marketing"  },
+];
+function opqGetMode() {
+  try { return localStorage.getItem("opq-mode") === "multi" ? "multi" : "single"; }
+  catch (e) { return "single"; }
+}
+function opqIsMulti(mode) { return (mode || opqGetMode()) === "multi"; }
+function opqGetWorkspace() {
+  try { return localStorage.getItem("opq-workspace") || "HR Internal"; }
+  catch (e) { return "HR Internal"; }
+}
+function opqSetWorkspace(name) {
+  try { localStorage.setItem("opq-workspace", name); } catch (e) {}
+}
+// Chip variant for a human-readable role label.
+function opqRoleChip(role) {
+  if (role === "Owner") return "info";
+  if (role === "Global Admin") return "info-out";
+  return "neutral";
+}
+
+// Role-gated empty surface for pages a Member cannot reach (Registry, Org Settings).
+const NoAccess = ({ title, area }) => (
+  <>
+    <div className="page-header">
+      <div className="title-row"><h1>{title}</h1></div>
+    </div>
+    <div className="scroll">
+      <div className="page-body">
+        <div className="wf-empty">
+          <div className="wf-empty-icon"><Icon name="lock" size={32} /></div>
+          <div className="wf-empty-title">You don’t have access to {area}</div>
+          <div className="wf-empty-body">
+            {area} is available to Owners and Global Admins. Switch your role from the
+            Tweaks panel to view it, or ask an administrator for access.
+          </div>
+        </div>
+      </div>
+    </div>
+  </>
+);
+
 const PageHeader = ({ title, chip, subtitle, actions, tabs, activeTab, onTab }) => (
   <div className="page-header">
     <div className="title-row">
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <h1>{title}</h1>
-        {chip && <Chip variant={chip.variant}>{chip.label}</Chip>}
+        {chip && (React.isValidElement(chip) ? chip : <Chip variant={chip.variant}>{chip.label}</Chip>)}
         {subtitle && <span className="subtitle">{subtitle}</span>}
       </div>
       {actions && <div className="actions">{actions}</div>}
@@ -79,4 +154,4 @@ const PageHeader = ({ title, chip, subtitle, actions, tabs, activeTab, onTab }) 
   </div>
 );
 
-Object.assign(window, { OpaqueLogo, Icon, Button, IconButton, Chip, Status, Field, Select, MetricCard, PageHeader });
+Object.assign(window, { OpaqueLogo, Icon, Button, IconButton, Chip, Status, Field, Select, MetricCard, PageHeader, NoAccess, opqGetRole, opqIsAdmin, opqIsOwner, opqRoleChip, OPQ_ROLE_LABEL, OPQ_PERSONA, OPQ_WORKSPACES, opqGetMode, opqIsMulti, opqGetWorkspace, opqSetWorkspace });
